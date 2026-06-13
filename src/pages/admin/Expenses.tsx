@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
-import { Plus, Paperclip, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { PageHeader } from "../../components/admin/PageHeader";
 import { Button } from "../../components/ui/Button";
 import { DataTable, type Column } from "../../components/ui/Table";
 import { ExpenseModal } from "../../components/admin/ExpenseModal";
+import { ReceiptLink } from "../../components/admin/ReceiptLink";
 import { useAppData } from "../../store/AppDataProvider";
 import { formatCurrency, formatDate } from "../../lib/format";
 import { EXPENSE_CATEGORIES, type Expense } from "../../types";
@@ -52,21 +53,7 @@ export function Expenses() {
     {
       key: "receipt",
       header: "Receipt",
-      cell: (e) =>
-        e.receipt ? (
-          <span className="inline-flex items-center gap-1 text-xs text-teal-dark">
-            <Paperclip className="h-3.5 w-3.5" />
-            {e.receipt.data_url ? (
-              <a href={e.receipt.data_url} download={e.receipt.name} className="hover:underline">
-                {e.receipt.name}
-              </a>
-            ) : (
-              e.receipt.name
-            )}
-          </span>
-        ) : (
-          <span className="text-xs text-slate-300">—</span>
-        ),
+      cell: (e) => <ReceiptLink receipt={e.receipt} />,
     },
     {
       key: "lead",

@@ -1,11 +1,14 @@
-import { useMemo } from "react";
-import { Trophy, Crown } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Trophy, Crown, Pencil, Info } from "lucide-react";
 import { PageHeader } from "../../components/admin/PageHeader";
 import { Card } from "../../components/ui/Card";
 import { ProgressRing } from "../../components/ui/ProgressRing";
+import { TeamMemberModal } from "../../components/admin/TeamMemberModal";
 import { useAppData, type UserKpis } from "../../store/AppDataProvider";
+import { useAuth } from "../../store/AuthContext";
 import { formatCurrency, formatPercent } from "../../lib/format";
 import { cn } from "../../lib/cn";
+import type { User } from "../../types";
 
 function Bar({ label, value, target, format }: { label: string; value: number; target: number; format?: (n: number) => string }) {
   const pct = target ? Math.min(100, Math.round((value / target) * 100)) : 0;
@@ -25,7 +28,7 @@ function Bar({ label, value, target, format }: { label: string; value: number; t
   );
 }
 
-function UserCard({ k }: { k: UserKpis }) {
+function UserCard({ k, onEdit }: { k: UserKpis; onEdit: () => void }) {
   const revenuePct = k.user.targets.revenue ? k.revenue / k.user.targets.revenue : 0;
   return (
     <Card>
@@ -60,6 +63,13 @@ function UserCard({ k }: { k: UserKpis }) {
         <Stat label="Lost" value={String(k.lost)} />
         <Stat label="Spend" value={formatCurrency(k.expenses, { compact: true })} />
       </div>
+
+      <button
+        onClick={onEdit}
+        className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-line py-2 text-sm font-medium text-slate-600 transition-colors hover:border-teal hover:text-teal"
+      >
+        <Pencil className="h-4 w-4" /> Edit profile &amp; targets
+      </button>
     </Card>
   );
 }
@@ -75,12 +85,28 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 export function UserKPIs() {
   const { allUserKpis } = useAppData();
+  const { user: authUser } = useAuth();
   const kpis = allUserKpis();
   const leaderboard = useMemo(() => [...kpis].sort((a, b) => b.revenue - a.revenue), [kpis]);
+
+  const [editing, setEditing] = useState<User | null>(null);
+  const [open, setOpen] = useState(false);
+  const openEdit = (u: User) => {
+    setEditing(u);
+    setOpen(true);
+  };
 
   return (
     <div>
       <PageHeader title="Team KPIs" subtitle="Per-user progress against targets, plus the leaderboard." />
+
+      <div className="mb-6 flex items-start gap-2 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-slate-600">
+        <Info className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
+        <span>
+          To add a team member, invite them in <strong className="text-navy">Supabase → Authentication → Users</strong>.
+          Once they sign in they appear here, where you can set their role, colour, and KPI targets.
+        </span>
+      </div>
 
       {/* leaderboard */}
       <Card className="mb-6">
@@ -116,9 +142,16 @@ export function UserKPIs() {
       {/* per-user cards */}
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {kpis.map((k) => (
-          <UserCard key={k.user.id} k={k} />
+          <UserCard key={k.user.id} k={k} onEdit={() => openEdit(k.user)} />
         ))}
       </div>
+
+      <TeamMemberModal
+        open={open}
+        onClose={() => setOpen(false)}
+        member={editing}
+        isSelf={!!editing && !!authUser && editing.email === authUser.email}
+      />
     </div>
   );
 }

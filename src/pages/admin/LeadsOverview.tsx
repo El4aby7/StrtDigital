@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, LayoutGrid, List, GripVertical } from "lucide-react";
+import { Plus, LayoutGrid, List, GripVertical, Trash2 } from "lucide-react";
 import { PageHeader } from "../../components/admin/PageHeader";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
@@ -12,11 +12,17 @@ import { LEAD_STAGES, STAGE_LABELS, type Lead, type LeadStage } from "../../type
 import { cn } from "../../lib/cn";
 
 export function LeadsOverview() {
-  const { leads, users, getUser, setLeadStage } = useAppData();
+  const { leads, users, getUser, setLeadStage, deleteLead } = useAppData();
   const navigate = useNavigate();
   const [view, setView] = useState<"kanban" | "table">("kanban");
   const [dragId, setDragId] = useState<string | null>(null);
   const [overStage, setOverStage] = useState<LeadStage | null>(null);
+
+  const removeLead = (l: Lead) => {
+    if (window.confirm(`Delete lead "${l.company}"? This can't be undone.`)) {
+      deleteLead(l.id);
+    }
+  };
 
   const stats = useMemo(
     () =>
@@ -51,6 +57,23 @@ export function LeadsOverview() {
     { key: "source", header: "Source", cell: (l) => <span className="text-slate-600">{l.source}</span> },
     { key: "owner", header: "Owner", cell: (l) => <span className="text-slate-600">{ownerName(l.owner_id)}</span> },
     { key: "value", header: "Value", align: "right", cell: (l) => <span className="font-semibold text-navy">{formatCurrency(l.value)}</span> },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      cell: (l) => (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            removeLead(l);
+          }}
+          className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+          aria-label={`Delete ${l.company}`}
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      ),
+    },
   ];
 
   return (
@@ -135,7 +158,19 @@ export function LeadsOverview() {
                           <div className="text-sm font-semibold text-navy">{l.company}</div>
                           <div className="text-xs text-slate-500">{l.name}</div>
                         </div>
-                        <GripVertical className="h-4 w-4 shrink-0 text-slate-300 group-hover:text-slate-400" />
+                        <div className="flex shrink-0 items-center gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeLead(l);
+                            }}
+                            className="grid h-6 w-6 place-items-center rounded text-slate-300 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
+                            aria-label={`Delete ${l.company}`}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                          <GripVertical className="h-4 w-4 text-slate-300 group-hover:text-slate-400" />
+                        </div>
                       </div>
                       <div className="mt-3 flex items-center justify-between">
                         <span className="text-sm font-bold text-gradient">{formatCurrency(l.value)}</span>

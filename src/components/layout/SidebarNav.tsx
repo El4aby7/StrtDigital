@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Users, Receipt, Trophy, LogOut, X } from "lucide-react";
+import { LayoutDashboard, Users, Receipt, Trophy, FileText, LogOut, X } from "lucide-react";
 import { Logo } from "../ui/Logo";
 import { useAuth } from "../../store/AuthContext";
 import { cn } from "../../lib/cn";
@@ -9,6 +9,7 @@ const nav = [
   { to: "/admin/leads", label: "Leads", icon: Users, end: false },
   { to: "/admin/expenses", label: "Expenses", icon: Receipt, end: false },
   { to: "/admin/team", label: "Team KPIs", icon: Trophy, end: false },
+  { to: "/admin/content", label: "Site Content", icon: FileText, end: false },
 ];
 
 export function SidebarNav({

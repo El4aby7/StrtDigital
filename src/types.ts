@@ -96,8 +96,8 @@ export interface Lead {
 
 export interface ReceiptFile {
   name: string;
-  /** base64 data URL kept client-side; replaced by Supabase Storage URL later. */
-  data_url?: string;
+  /** object path in the private `receipts` Supabase Storage bucket (viewed via signed URL). */
+  path?: string;
   size?: number;
 }
 

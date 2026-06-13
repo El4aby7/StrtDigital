@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Check, ArrowUpRight } from "lucide-react";
 import { Button } from "../ui/Button";
+import { useSiteContent } from "../../store/SiteContentProvider";
 
 export function CTABand() {
+  const { cta } = useSiteContent().content;
   const [sent, setSent] = useState(false);
 
   return (
@@ -11,23 +13,18 @@ export function CTABand() {
         <div className="grid gap-10 rounded-[1.4rem] bg-navy/95 p-8 md:grid-cols-2 md:p-14">
           <div className="text-white">
             <h2 className="font-display text-4xl font-bold leading-tight text-white">
-              Let's build something that grows.
+              {cta.title}
             </h2>
-            <p className="mt-4 max-w-md text-lg text-white/70">
-              Tell us about your project and get a free, no-pressure consultation
-              within 24 hours.
-            </p>
+            <p className="mt-4 max-w-md text-lg text-white/70">{cta.subtitle}</p>
             <ul className="mt-8 space-y-3">
-              {["Free strategy consultation", "Fixed, transparent quote", "Senior team, fast delivery"].map(
-                (item) => (
-                  <li key={item} className="flex items-center gap-3 text-white/85">
-                    <span className="grid h-6 w-6 place-items-center rounded-full bg-cyan/20 text-cyan">
-                      <Check className="h-4 w-4" />
-                    </span>
-                    {item}
-                  </li>
-                ),
-              )}
+              {cta.bullets.map((item) => (
+                <li key={item} className="flex items-center gap-3 text-white/85">
+                  <span className="grid h-6 w-6 place-items-center rounded-full bg-cyan/20 text-cyan">
+                    <Check className="h-4 w-4" />
+                  </span>
+                  {item}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -43,10 +40,8 @@ export function CTABand() {
                 <span className="grid h-14 w-14 place-items-center rounded-full bg-brand-gradient text-white">
                   <Check className="h-7 w-7" />
                 </span>
-                <h3 className="mt-4 font-display text-xl font-bold text-navy">Thanks — we're on it!</h3>
-                <p className="mt-2 text-sm text-slate-600">
-                  We'll reach out within 24 hours to schedule your consultation.
-                </p>
+                <h3 className="mt-4 font-display text-xl font-bold text-navy">{cta.successTitle}</h3>
+                <p className="mt-2 text-sm text-slate-600">{cta.successCopy}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -74,7 +69,7 @@ export function CTABand() {
                   Get a Free Consultation
                 </Button>
                 <p className="flex items-center justify-center gap-1 text-xs text-slate-400">
-                  No spam. <ArrowUpRight className="h-3 w-3" /> Reply within 24h.
+                  {cta.formNote} <ArrowUpRight className="h-3 w-3" />
                 </p>
               </div>
             )}

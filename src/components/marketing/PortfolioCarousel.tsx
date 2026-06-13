@@ -1,10 +1,12 @@
 import { useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
-import { caseStudies } from "../../data/content";
 import { Reveal } from "../Reveal";
 import { cn } from "../../lib/cn";
+import { useSiteContent } from "../../store/SiteContentProvider";
 
 export function PortfolioCarousel() {
+  const { portfolio } = useSiteContent().content;
+  const caseStudies = portfolio.items;
   const trackRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
 
@@ -23,10 +25,10 @@ export function PortfolioCarousel() {
         <Reveal className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl">
             <span className="text-sm font-semibold uppercase tracking-wide text-teal">
-              Growth stories
+              {portfolio.eyebrow}
             </span>
             <h2 className="mt-3 font-display text-4xl font-bold text-navy">
-              Work that moves the numbers
+              {portfolio.title}
             </h2>
           </div>
           <div className="flex gap-2">

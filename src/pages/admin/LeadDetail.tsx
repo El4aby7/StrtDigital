@@ -8,6 +8,7 @@ import {
   Tag,
   Plus,
   Pencil,
+  Trash2,
   X,
   Paperclip,
   Send,
@@ -33,6 +34,7 @@ export function LeadDetail() {
     expensesByLead,
     leadAcquisitionCost,
     linkExpenseToLead,
+    deleteLead,
   } = useAppData();
 
   const lead = getLead(id);
@@ -61,6 +63,13 @@ export function LeadDetail() {
     setNote("");
   };
 
+  const removeLead = () => {
+    if (window.confirm(`Delete lead "${lead.company}"? This can't be undone.`)) {
+      deleteLead(lead.id);
+      navigate("/admin/leads");
+    }
+  };
+
   return (
     <div>
       <Link to="/admin/leads" className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-teal">
@@ -71,9 +80,14 @@ export function LeadDetail() {
         title={lead.company}
         subtitle={`${lead.name} · ${lead.source}`}
         actions={
-          <Button variant="outline" icon={Pencil} onClick={() => navigate(`/admin/leads/${lead.id}/edit`)}>
-            Edit
-          </Button>
+          <>
+            <Button variant="outline" icon={Pencil} onClick={() => navigate(`/admin/leads/${lead.id}/edit`)}>
+              Edit
+            </Button>
+            <Button variant="outline" icon={Trash2} onClick={removeLead} className="text-rose-600 hover:border-rose-300 hover:text-rose-700">
+              Delete
+            </Button>
+          </>
         }
       />
 

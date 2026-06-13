@@ -3,6 +3,7 @@ import { Paperclip, X } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { useAppData } from "../../store/AppDataProvider";
+import { uploadReceipt } from "../../store/supabaseRepo";
 import { newId } from "../../lib/id";
 import {
   EXPENSE_CATEGORIES,
@@ -26,36 +27,55 @@ const inputClass =
 export function ExpenseModal({ open, onClose, presetLeadId, editing }: ExpenseModalProps) {
   const { leads, upsertExpense } = useAppData();
 
-  const [date, setDate] = useState(editing?.date ?? "2026-06-10");
+  const [date, setDate] = useState(editing?.date ?? new Date().toISOString().slice(0, 10));
   const [category, setCategory] = useState<ExpenseCategory>(editing?.category ?? "Advertising");
   const [vendor, setVendor] = useState(editing?.vendor ?? "");
   const [amount, setAmount] = useState(editing?.amount?.toString() ?? "");
   const [description, setDescription] = useState(editing?.description ?? "");
   const [leadId, setLeadId] = useState<string>(editing?.lead_id ?? presetLeadId ?? "");
+  // Existing receipt metadata (already in Storage) and/or a freshly picked file.
   const [receipt, setReceipt] = useState<ReceiptFile | null>(editing?.receipt ?? null);
+  const [newFile, setNewFile] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const onFile = (file: File | undefined) => {
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () =>
-      setReceipt({ name: file.name, data_url: reader.result as string, size: file.size });
-    reader.readAsDataURL(file);
+    setNewFile(file);
+    setReceipt({ name: file.name, size: file.size }); // shown immediately; path set on upload
   };
 
-  const submit = (e: React.FormEvent) => {
+  const clearReceipt = () => {
+    setNewFile(null);
+    setReceipt(null);
+  };
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const expense: Expense = {
-      id: editing?.id ?? newId("e"),
-      date,
-      category,
-      vendor: vendor.trim() || "Unknown vendor",
-      amount: Number(amount) || 0,
-      description: description.trim(),
-      receipt,
-      lead_id: leadId || null,
-    };
-    upsertExpense(expense);
-    onClose();
+    setError(null);
+    setSaving(true);
+    try {
+      // Upload a newly picked file to the private receipts bucket first.
+      let receiptMeta = receipt;
+      if (newFile) receiptMeta = await uploadReceipt(newFile);
+
+      const expense: Expense = {
+        id: editing?.id ?? newId("e"),
+        date,
+        category,
+        vendor: vendor.trim() || "Unknown vendor",
+        amount: Number(amount) || 0,
+        description: description.trim(),
+        receipt: receiptMeta,
+        lead_id: leadId || null,
+      };
+      upsertExpense(expense);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save the expense.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -114,7 +134,7 @@ export function ExpenseModal({ open, onClose, presetLeadId, editing }: ExpenseMo
                 <Paperclip className="h-4 w-4 text-teal" />
                 {receipt.name}
               </span>
-              <button type="button" onClick={() => setReceipt(null)} className="text-slate-400 hover:text-rose-600" aria-label="Remove receipt">
+              <button type="button" onClick={clearReceipt} className="text-slate-400 hover:text-rose-600" aria-label="Remove receipt">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -127,11 +147,15 @@ export function ExpenseModal({ open, onClose, presetLeadId, editing }: ExpenseMo
           )}
         </div>
 
+        {error && <p className="text-sm text-rose-600">{error}</p>}
+
         <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
             Cancel
           </Button>
-          <Button type="submit">{editing ? "Save changes" : "Add expense"}</Button>
+          <Button type="submit" disabled={saving}>
+            {saving ? "Saving…" : editing ? "Save changes" : "Add expense"}
+          </Button>
         </div>
       </form>
     </Modal>

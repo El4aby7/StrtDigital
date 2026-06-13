@@ -4,6 +4,7 @@ import { Menu, X } from "lucide-react";
 import { Logo } from "../ui/Logo";
 import { Button } from "../ui/Button";
 import { cn } from "../../lib/cn";
+import { scrollToId } from "../../lib/scrollToId";
 
 const links = [
   { href: "#services", label: "Services" },
@@ -32,7 +33,14 @@ export function Navbar() {
       )}
     >
       <nav className="container-page flex h-16 items-center justify-between md:h-20">
-        <a href="#top" aria-label="StrtDigital home">
+        <a
+          href="#top"
+          aria-label="StrtDigital home"
+          onClick={(e) => {
+            e.preventDefault();
+            scrollToId("top");
+          }}
+        >
           <Logo tone="dark" />
         </a>
 
@@ -41,6 +49,10 @@ export function Navbar() {
             <a
               key={l.href}
               href={l.href}
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToId(l.href);
+              }}
               className="text-sm font-medium text-navy/70 transition-colors hover:text-teal"
             >
               {l.label}
@@ -52,7 +64,13 @@ export function Navbar() {
           <Link to="/admin/login" className="text-sm font-medium text-navy/70 hover:text-teal">
             Sign in
           </Link>
-          <a href="#contact">
+          <a
+            href="#contact"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToId("contact");
+            }}
+          >
             <Button size="sm" arrow>
               Get a Free Consultation
             </Button>
@@ -76,7 +94,11 @@ export function Navbar() {
               <a
                 key={l.href}
                 href={l.href}
-                onClick={() => setOpen(false)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setOpen(false);
+                  scrollToId(l.href);
+                }}
                 className="rounded-lg px-2 py-3 text-sm font-medium text-navy/80 hover:bg-surface"
               >
                 {l.label}
@@ -89,7 +111,14 @@ export function Navbar() {
             >
               Sign in
             </Link>
-            <a href="#contact" onClick={() => setOpen(false)}>
+            <a
+              href="#contact"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen(false);
+                scrollToId("contact");
+              }}
+            >
               <Button className="mt-2 w-full" arrow>
                 Get a Free Consultation
               </Button>

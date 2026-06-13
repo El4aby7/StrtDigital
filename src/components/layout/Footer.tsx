@@ -1,20 +1,49 @@
 import { Link } from "react-router-dom";
 import { Linkedin, Twitter, Instagram, Facebook, Mail } from "lucide-react";
 import { Logo } from "../ui/Logo";
+import { scrollToId } from "../../lib/scrollToId";
 
-const columns = [
+// Each footer link maps to the on-page section it should scroll to. This is a
+// single-page marketing site, so every link points at one of the real section ids
+// (#services, #work, #process, #why, #faq, #contact) rather than a dead "#".
+const columns: { title: string; links: { label: string; target: string }[] }[] = [
   {
     title: "Services",
-    links: ["Web Design", "eCommerce", "SEO", "Branding", "Marketing", "Support"],
+    links: [
+      { label: "Web Design", target: "services" },
+      { label: "eCommerce", target: "services" },
+      { label: "SEO", target: "services" },
+      { label: "Branding", target: "services" },
+      { label: "Marketing", target: "services" },
+      { label: "Support", target: "contact" },
+    ],
   },
   {
     title: "Company",
-    links: ["About", "Work", "Process", "Careers", "Contact"],
+    links: [
+      { label: "About", target: "why" },
+      { label: "Work", target: "work" },
+      { label: "Process", target: "process" },
+      { label: "Contact", target: "contact" },
+    ],
   },
   {
     title: "Resources",
-    links: ["Blog", "Case Studies", "FAQ", "Privacy", "Terms"],
+    links: [
+      { label: "Case Studies", target: "work" },
+      { label: "FAQ", target: "faq" },
+      { label: "Get a quote", target: "contact" },
+    ],
   },
+];
+
+// Social profiles. Replace these with the real StrtDigital handles when available;
+// until then they scroll to the contact form rather than dead-ending on "#".
+const socials: { Icon: typeof Linkedin; label: string; href?: string }[] = [
+  { Icon: Linkedin, label: "LinkedIn" },
+  { Icon: Twitter, label: "X / Twitter" },
+  { Icon: Instagram, label: "Instagram" },
+  { Icon: Facebook, label: "Facebook" },
 ];
 
 export function Footer() {
@@ -28,12 +57,17 @@ export function Footer() {
             experiences that start your growth.
           </p>
           <div className="mt-5 flex gap-3">
-            {[Linkedin, Twitter, Instagram, Facebook].map((Icon, i) => (
+            {socials.map(({ Icon, label, href }) => (
               <a
-                key={i}
-                href="#"
+                key={label}
+                href={href ?? "#contact"}
+                target={href ? "_blank" : undefined}
+                rel={href ? "noopener noreferrer" : undefined}
+                onClick={
+                  href ? undefined : (e) => { e.preventDefault(); scrollToId("contact"); }
+                }
                 className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-teal hover:text-white"
-                aria-label="Social link"
+                aria-label={label}
               >
                 <Icon className="h-4 w-4" />
               </a>
@@ -46,9 +80,13 @@ export function Footer() {
             <h4 className="text-sm font-semibold text-white">{col.title}</h4>
             <ul className="mt-4 space-y-2.5">
               {col.links.map((l) => (
-                <li key={l}>
-                  <a href="#" className="text-sm text-white/60 transition-colors hover:text-teal">
-                    {l}
+                <li key={l.label}>
+                  <a
+                    href={`#${l.target}`}
+                    onClick={(e) => { e.preventDefault(); scrollToId(l.target); }}
+                    className="text-sm text-white/60 transition-colors hover:text-teal"
+                  >
+                    {l.label}
                   </a>
                 </li>
               ))}

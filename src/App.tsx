@@ -1,7 +1,8 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import { HashRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./store/AuthContext";
 import { AppDataProvider } from "./store/AppDataProvider";
+import { SiteContentProvider } from "./store/SiteContentProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { MarketingLayout } from "./components/layout/MarketingLayout";
 import { Home } from "./pages/marketing/Home";
@@ -24,6 +25,9 @@ const LeadsOverview = lazy(() => import("./pages/admin/LeadsOverview").then((m) 
 const LeadForm = lazy(() => import("./pages/admin/LeadForm").then((m) => ({ default: m.LeadForm })));
 const LeadDetail = lazy(() => import("./pages/admin/LeadDetail").then((m) => ({ default: m.LeadDetail })));
 const UserKPIs = lazy(() => import("./pages/admin/UserKPIs").then((m) => ({ default: m.UserKPIs })));
+const SiteContentEditor = lazy(() =>
+  import("./pages/admin/SiteContentEditor").then((m) => ({ default: m.SiteContentEditor })),
+);
 
 function AdminFallback() {
   return (
@@ -38,8 +42,15 @@ function AdminFallback() {
 function RecoveryRedirect() {
   const { isRecovery } = useAuth();
   const navigate = useNavigate();
+  // Redirect only once, on the rising edge of recovery. Otherwise the effect would
+  // re-fire after the user navigates away (e.g. clicks "Back to sign in") and trap
+  // them back on the reset screen.
+  const handled = useRef(false);
   useEffect(() => {
-    if (isRecovery) navigate("/admin/reset-password", { replace: true });
+    if (isRecovery && !handled.current) {
+      handled.current = true;
+      navigate("/admin/reset-password", { replace: true });
+    }
   }, [isRecovery, navigate]);
   return null;
 }
@@ -48,6 +59,7 @@ export function App() {
   return (
     <AuthProvider>
       <AppDataProvider>
+        <SiteContentProvider>
         <HashRouter>
           <RecoveryRedirect />
           <Suspense fallback={<AdminFallback />}>
@@ -78,12 +90,14 @@ export function App() {
                 <Route path="leads/:id" element={<LeadDetail />} />
                 <Route path="leads/:id/edit" element={<LeadForm />} />
                 <Route path="team" element={<UserKPIs />} />
+                <Route path="content" element={<SiteContentEditor />} />
               </Route>
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
         </HashRouter>
+        </SiteContentProvider>
       </AppDataProvider>
     </AuthProvider>
   );

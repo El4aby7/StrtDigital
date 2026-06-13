@@ -15,7 +15,8 @@ import type {
   LeadStage,
   User,
 } from "../types";
-import { repository } from "./repository";
+import * as repo from "./supabaseRepo";
+import { useAuth } from "./AuthContext";
 
 export interface UserKpis {
   user: User;
@@ -31,6 +32,8 @@ interface AppDataContextValue {
   users: User[];
   leads: Lead[];
   expenses: Expense[];
+  /** true until the first Supabase load resolves */
+  loading: boolean;
   // lookups
   getUser: (id: string) => User | undefined;
   getLead: (id: string) => Lead | undefined;
@@ -43,69 +46,90 @@ interface AppDataContextValue {
   upsertExpense: (expense: Expense) => void;
   deleteExpense: (id: string) => void;
   linkExpenseToLead: (expenseId: string, leadId: string | null) => void;
+  // profile mutations
+  upsertUser: (user: User) => void;
+  deleteUser: (id: string) => void;
   // selectors
   expensesByLead: (leadId: string) => Expense[];
   leadAcquisitionCost: (leadId: string) => number;
   userKpis: (userId: string) => UserKpis;
   allUserKpis: () => UserKpis[];
-  resetData: () => void;
+  reload: () => Promise<void>;
 }
 
 const AppDataContext = createContext<AppDataContextValue | null>(null);
 
+const EMPTY: AppData = { users: [], leads: [], expenses: [] };
 const nowIso = () => new Date().toISOString();
 const newId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
     ? crypto.randomUUID()
     : `id-${Math.random().toString(36).slice(2)}-${Date.now()}`;
 
+// Persist failures shouldn't crash the optimistic UI — surface them in the console.
+function reportError(context: string) {
+  return (err: unknown) => console.error(`[AppData] ${context} failed:`, err);
+}
+
 export function AppDataProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<AppData>(() => repository.load());
+  const [data, setData] = useState<AppData>(EMPTY);
+  const [loading, setLoading] = useState(true);
+
+  const reload = useCallback(async () => {
+    try {
+      await repo.ensureOwnProfile().catch(reportError("ensureOwnProfile"));
+      const fresh = await repo.loadAll();
+      setData(fresh);
+    } catch (err) {
+      reportError("load")(err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    repository.persist(data);
-  }, [data]);
+    reload();
+  }, [reload]);
 
-  const getUser = useCallback(
-    (id: string) => data.users.find((u) => u.id === id),
-    [data.users],
-  );
-  const getLead = useCallback(
-    (id: string) => data.leads.find((l) => l.id === id),
-    [data.leads],
-  );
+  const getUser = useCallback((id: string) => data.users.find((u) => u.id === id), [data.users]);
+  const getLead = useCallback((id: string) => data.leads.find((l) => l.id === id), [data.leads]);
 
-  const upsertLead = useCallback((lead: Lead) => {
-    setData((prev) => {
-      const exists = prev.leads.some((l) => l.id === lead.id);
+  const upsertLead = useCallback(
+    (lead: Lead) => {
       const stamped = { ...lead, updated_at: nowIso() };
-      return {
-        ...prev,
-        leads: exists
-          ? prev.leads.map((l) => (l.id === lead.id ? stamped : l))
-          : [{ ...stamped, created_at: stamped.created_at || nowIso() }, ...prev.leads],
-      };
-    });
-  }, []);
+      let isNew = false;
+      setData((prev) => {
+        const exists = prev.leads.some((l) => l.id === lead.id);
+        isNew = !exists;
+        return {
+          ...prev,
+          leads: exists
+            ? prev.leads.map((l) => (l.id === lead.id ? stamped : l))
+            : [{ ...stamped, created_at: stamped.created_at || nowIso() }, ...prev.leads],
+        };
+      });
+      repo.upsertLead(stamped, isNew).catch(reportError("upsertLead"));
+    },
+    [],
+  );
 
   const deleteLead = useCallback((id: string) => {
     setData((prev) => ({
       ...prev,
       leads: prev.leads.filter((l) => l.id !== id),
-      // detach any expenses pointing at the removed lead
-      expenses: prev.expenses.map((e) =>
-        e.lead_id === id ? { ...e, lead_id: null } : e,
-      ),
+      // detach any expenses pointing at the removed lead (DB does this via ON DELETE SET NULL)
+      expenses: prev.expenses.map((e) => (e.lead_id === id ? { ...e, lead_id: null } : e)),
     }));
+    repo.deleteLead(id).catch(reportError("deleteLead"));
   }, []);
 
   const setLeadStage = useCallback((id: string, stage: LeadStage) => {
-    setData((prev) => ({
-      ...prev,
-      leads: prev.leads.map((l) => {
+    setData((prev) => {
+      let updated: Lead | null = null;
+      const leads = prev.leads.map((l) => {
         if (l.id !== id || l.stage === stage) return l;
         const at = nowIso();
-        return {
+        updated = {
           ...l,
           stage,
           updated_at: at,
@@ -115,31 +139,38 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
             ...l.activity,
           ],
         };
-      }),
-    }));
+        return updated;
+      });
+      if (updated) repo.upsertLead(updated, false).catch(reportError("setLeadStage"));
+      return { ...prev, leads };
+    });
   }, []);
 
   const addActivity = useCallback(
     (leadId: string, entry: Omit<ActivityEntry, "id" | "at">) => {
-      setData((prev) => ({
-        ...prev,
-        leads: prev.leads.map((l) =>
-          l.id === leadId
-            ? {
-                ...l,
-                updated_at: nowIso(),
-                activity: [{ ...entry, id: newId(), at: nowIso() }, ...l.activity],
-              }
-            : l,
-        ),
-      }));
+      setData((prev) => {
+        let updated: Lead | null = null;
+        const leads = prev.leads.map((l) => {
+          if (l.id !== leadId) return l;
+          updated = {
+            ...l,
+            updated_at: nowIso(),
+            activity: [{ ...entry, id: newId(), at: nowIso() }, ...l.activity],
+          };
+          return updated;
+        });
+        if (updated) repo.upsertLead(updated, false).catch(reportError("addActivity"));
+        return { ...prev, leads };
+      });
     },
     [],
   );
 
   const upsertExpense = useCallback((expense: Expense) => {
+    let isNew = false;
     setData((prev) => {
       const exists = prev.expenses.some((e) => e.id === expense.id);
+      isNew = !exists;
       return {
         ...prev,
         expenses: exists
@@ -147,22 +178,47 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           : [expense, ...prev.expenses],
       };
     });
+    repo.upsertExpense(expense, isNew).catch(reportError("upsertExpense"));
   }, []);
 
   const deleteExpense = useCallback((id: string) => {
-    setData((prev) => ({
-      ...prev,
-      expenses: prev.expenses.filter((e) => e.id !== id),
-    }));
+    let receiptPath: string | null | undefined;
+    setData((prev) => {
+      receiptPath = prev.expenses.find((e) => e.id === id)?.receipt?.path;
+      return { ...prev, expenses: prev.expenses.filter((e) => e.id !== id) };
+    });
+    repo.deleteExpense(id, receiptPath).catch(reportError("deleteExpense"));
   }, []);
 
   const linkExpenseToLead = useCallback((expenseId: string, leadId: string | null) => {
     setData((prev) => ({
       ...prev,
-      expenses: prev.expenses.map((e) =>
-        e.id === expenseId ? { ...e, lead_id: leadId } : e,
-      ),
+      expenses: prev.expenses.map((e) => (e.id === expenseId ? { ...e, lead_id: leadId } : e)),
     }));
+    repo.setExpenseLead(expenseId, leadId).catch(reportError("linkExpenseToLead"));
+  }, []);
+
+  const upsertUser = useCallback((user: User) => {
+    setData((prev) => {
+      const exists = prev.users.some((u) => u.id === user.id);
+      return {
+        ...prev,
+        users: exists
+          ? prev.users.map((u) => (u.id === user.id ? user : u))
+          : [...prev.users, user],
+      };
+    });
+    repo.upsertProfile(user).catch(reportError("upsertUser"));
+  }, []);
+
+  const deleteUser = useCallback((id: string) => {
+    setData((prev) => ({
+      ...prev,
+      users: prev.users.filter((u) => u.id !== id),
+      // mirror the DB's ON DELETE SET NULL on leads.owner_id
+      leads: prev.leads.map((l) => (l.owner_id === id ? { ...l, owner_id: "" } : l)),
+    }));
+    repo.deleteProfile(id).catch(reportError("deleteUser"));
   }, []);
 
   const expensesByLead = useCallback(
@@ -172,9 +228,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
 
   const leadAcquisitionCost = useCallback(
     (leadId: string) =>
-      data.expenses
-        .filter((e) => e.lead_id === leadId)
-        .reduce((sum, e) => sum + e.amount, 0),
+      data.expenses.filter((e) => e.lead_id === leadId).reduce((sum, e) => sum + e.amount, 0),
     [data.expenses],
   );
 
@@ -204,23 +258,19 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
   const userKpis = useCallback(
     (userId: string) => {
       const user = data.users.find((u) => u.id === userId);
-      return computeKpis(user ?? data.users[0]);
+      return computeKpis(user ?? data.users[0] ?? FALLBACK_USER);
     },
     [data.users, computeKpis],
   );
 
-  const allUserKpis = useCallback(
-    () => data.users.map(computeKpis),
-    [data.users, computeKpis],
-  );
-
-  const resetData = useCallback(() => setData(repository.reset()), []);
+  const allUserKpis = useCallback(() => data.users.map(computeKpis), [data.users, computeKpis]);
 
   const value = useMemo<AppDataContextValue>(
     () => ({
       users: data.users,
       leads: data.leads,
       expenses: data.expenses,
+      loading,
       getUser,
       getLead,
       upsertLead,
@@ -230,14 +280,17 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       upsertExpense,
       deleteExpense,
       linkExpenseToLead,
+      upsertUser,
+      deleteUser,
       expensesByLead,
       leadAcquisitionCost,
       userKpis,
       allUserKpis,
-      resetData,
+      reload,
     }),
     [
       data,
+      loading,
       getUser,
       getLead,
       upsertLead,
@@ -247,16 +300,28 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       upsertExpense,
       deleteExpense,
       linkExpenseToLead,
+      upsertUser,
+      deleteUser,
       expensesByLead,
       leadAcquisitionCost,
       userKpis,
       allUserKpis,
-      resetData,
+      reload,
     ],
   );
 
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }
+
+// Guards selectors against an empty team (e.g. before any profile loads).
+const FALLBACK_USER: User = {
+  id: "—",
+  name: "—",
+  email: "",
+  role: "Member",
+  avatar_color: "#14B8C4",
+  targets: { leads: 0, won: 0, revenue: 0, conversion: 0 },
+};
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAppData(): AppDataContextValue {
