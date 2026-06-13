@@ -33,12 +33,14 @@ tags: [website, scaffold, agency, dashboard]
 - `src/data/seed.ts` — CRM seed (4 users, 12 leads, 14 expenses; some pre-linked).
 - `src/store/repository.ts` — **persistence boundary** (localStorage now; Supabase later).
 - `src/store/AppDataProvider.tsx` — CRM state, CRUD, **expense↔lead linking**, per-user KPI rollups.
-- `src/store/AuthContext.tsx` — mock auth gate (localStorage session).
+- `src/store/AuthContext.tsx` — **Supabase Auth** gate (signIn/signOut, password reset, session restore).
+- `src/lib/supabase.ts` — Supabase client (hardcoded URL + publishable key; remember-me storage adapter).
 - `src/components/ui/*` — Button, Card, KPIStat, Table, Modal, Badge, ProgressRing, Logo.
 - `src/components/charts/*` — Recharts wrappers (Trend/StageBar/SourceDonut).
 - `src/components/marketing/*` — the 9 landing sections.
 - `src/components/layout/*` — Navbar/Footer (public); SidebarNav/Topbar/AdminLayout (admin).
-- `src/pages/marketing/Home.tsx`, `src/pages/admin/*` — Login, Dashboard, Expenses, LeadsOverview, LeadForm, LeadDetail, UserKPIs.
+- `src/pages/marketing/Home.tsx`, `src/pages/admin/*` — Login, ForgotPassword, ResetPassword, Dashboard, Expenses, LeadsOverview, LeadForm, LeadDetail, UserKPIs.
+- `src/components/admin/AuthShell.tsx` — shared light split-panel layout for the auth screens.
 - `.github/workflows/deploy.yml`, `public/.nojekyll` — GitHub Pages deploy.
 
 ## Features
@@ -57,8 +59,8 @@ tags: [website, scaffold, agency, dashboard]
 
 ## Data / Backend
 
-- No backend yet. CRM state seeds from `src/data/seed.ts` into **localStorage** via `src/store/repository.ts`.
-- **Supabase is planned next.** All reads/writes go through `repository.ts` + `AppDataProvider`; swapping in a `supabaseRepo` (tables `users`, `leads`, `expenses` with `expenses.lead_id` FK; Supabase Storage for receipts; Supabase Auth in `AuthContext`) is an isolated change — no component edits.
+- **Auth is live on Supabase** (`src/lib/supabase.ts` + `AuthContext`) — sign-in, sign-out, session restore, and password reset all run client-side (browser → Supabase), so they work on static GitHub Pages.
+- CRM **data** (leads/expenses/KPIs) still seeds from `src/data/seed.ts` into **localStorage** via `src/store/repository.ts`. Migrating it to Supabase tables is the next step: all reads/writes go through `repository.ts` + `AppDataProvider`, so swapping in a `supabaseRepo` (tables `users`, `leads`, `expenses` with `expenses.lead_id` FK; Supabase Storage for receipts) is an isolated change — no component edits.
 - Drop a `Main_Logo.png` into `public/` to replace the built-in SD-monogram SVG in the navbar/footer/login.
 
 ## Run
@@ -70,7 +72,18 @@ npm run build     # tsc + vite → dist/ (static)
 npm run preview   # serve dist/ locally
 ```
 
-Admin demo login at `/#/admin/login` — **any email + password** signs in.
+Admin login at `/#/admin/login` — **real, invite-only Supabase Auth** (no demo creds).
+Sign in with a user created/invited in the Supabase dashboard; public signup is disabled.
+"Forgot password?" emails a reset link that lands on `/#/admin/reset-password`.
+
+**Supabase dashboard setup (one-time):**
+- **Auth → URL Configuration**: add the app's entry URLs to **Redirect URLs** (e.g.
+  `http://localhost:5173/`, `https://<user>.github.io/StrtDigital/`, `https://strtdigital.site/`)
+  and set **Site URL**. The reset link redirects here; PKCE `?code=` is exchanged on load.
+- **Email/SMTP**: password-reset emails need email enabled (built-in sender works for
+  low-volume testing; configure custom SMTP for production).
+- **RLS**: enable row-level security on your tables before going live — the publishable
+  key ships in the public bundle and is not a secret.
 
 ## Deploy (GitHub Pages)
 

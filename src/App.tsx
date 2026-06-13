@@ -1,6 +1,6 @@
-import { lazy, Suspense } from "react";
-import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./store/AuthContext";
+import { lazy, Suspense, useEffect } from "react";
+import { HashRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./store/AuthContext";
 import { AppDataProvider } from "./store/AppDataProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { MarketingLayout } from "./components/layout/MarketingLayout";
@@ -12,6 +12,12 @@ const AdminLayout = lazy(() =>
   import("./components/layout/AdminLayout").then((m) => ({ default: m.AdminLayout })),
 );
 const Login = lazy(() => import("./pages/admin/Login").then((m) => ({ default: m.Login })));
+const ForgotPassword = lazy(() =>
+  import("./pages/admin/ForgotPassword").then((m) => ({ default: m.ForgotPassword })),
+);
+const ResetPassword = lazy(() =>
+  import("./pages/admin/ResetPassword").then((m) => ({ default: m.ResetPassword })),
+);
 const Dashboard = lazy(() => import("./pages/admin/Dashboard").then((m) => ({ default: m.Dashboard })));
 const Expenses = lazy(() => import("./pages/admin/Expenses").then((m) => ({ default: m.Expenses })));
 const LeadsOverview = lazy(() => import("./pages/admin/LeadsOverview").then((m) => ({ default: m.LeadsOverview })));
@@ -27,11 +33,23 @@ function AdminFallback() {
   );
 }
 
+// When a password-recovery link is opened, Supabase exchanges the `?code=` and fires
+// PASSWORD_RECOVERY (→ isRecovery). Send the user to the reset-password screen.
+function RecoveryRedirect() {
+  const { isRecovery } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (isRecovery) navigate("/admin/reset-password", { replace: true });
+  }, [isRecovery, navigate]);
+  return null;
+}
+
 export function App() {
   return (
     <AuthProvider>
       <AppDataProvider>
         <HashRouter>
+          <RecoveryRedirect />
           <Suspense fallback={<AdminFallback />}>
             <Routes>
               {/* Public marketing site */}
@@ -41,6 +59,8 @@ export function App() {
 
               {/* Auth gate */}
               <Route path="/admin/login" element={<Login />} />
+              <Route path="/admin/forgot-password" element={<ForgotPassword />} />
+              <Route path="/admin/reset-password" element={<ResetPassword />} />
 
               {/* Private admin dashboard */}
               <Route
