@@ -62,7 +62,11 @@ export interface User {
   email: string;
   role: string;
   avatar_color: string; // hex, for the initials avatar
+  /** uploaded profile image (public avatars bucket); falls back to initials when null */
+  avatar_url: string | null;
   targets: UserTargets;
+  /** admin accounts are hidden from the team roster / KPIs and lead assignment */
+  is_admin: boolean;
 }
 
 export interface ActivityEntry {

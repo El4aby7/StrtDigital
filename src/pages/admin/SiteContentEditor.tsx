@@ -1,9 +1,11 @@
 import { useState, type ReactNode } from "react";
+import { Navigate } from "react-router-dom";
 import { Plus, Trash2, Check, ExternalLink } from "lucide-react";
 import { PageHeader } from "../../components/admin/PageHeader";
 import { Button } from "../../components/ui/Button";
 import { cn } from "../../lib/cn";
 import { useSiteContent } from "../../store/SiteContentProvider";
+import { useAppData } from "../../store/AppDataProvider";
 import {
   ICON_NAMES,
   SECTION_LABELS,
@@ -22,6 +24,8 @@ import {
   type ProcessStepItem,
   type TestimonialItem,
   type FaqItem,
+  type CustomContent,
+  type CustomField,
 } from "../../data/siteContent";
 
 const inputCls =
@@ -401,6 +405,30 @@ function CtaEditor({ value, onChange }: { value: CtaContent; onChange: (v: CtaCo
   );
 }
 
+function CustomEditor({ value, onChange }: { value: CustomContent; onChange: (v: CustomContent) => void }) {
+  const set = (patch: Partial<CustomContent>) => onChange({ ...value, ...patch });
+  return (
+    <div className="space-y-3">
+      <Field label="Section heading" value={value.heading} onChange={(v) => set({ heading: v })} />
+      <p className="text-xs text-slate-500">
+        Add your own fields here — each one shows on the homepage as a labelled card. Leave the list empty to hide the section.
+      </p>
+      <ListEditor<CustomField>
+        items={value.fields}
+        onChange={(fields) => set({ fields })}
+        addLabel="Add field"
+        makeNew={() => ({ id: `f-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, label: "", value: "" })}
+        render={(item, update) => (
+          <div className="space-y-3">
+            <Field label="Label" value={item.label} onChange={(v) => update({ label: v })} />
+            <Field label="Content" textarea value={item.value} onChange={(v) => update({ value: v })} />
+          </div>
+        )}
+      />
+    </div>
+  );
+}
+
 const SECTION_ORDER: SiteContentKey[] = [
   "hero",
   "services",
@@ -410,10 +438,12 @@ const SECTION_ORDER: SiteContentKey[] = [
   "testimonials",
   "faqs",
   "cta",
+  "custom",
 ];
 
 export function SiteContentEditor() {
   const { content, loading, saveSection } = useSiteContent();
+  const { isAdmin } = useAppData();
   const [section, setSection] = useState<SiteContentKey>("hero");
   const source = content[section];
   const [draft, setDraft] = useState<SiteContent[SiteContentKey]>(() => structuredClone(source));
@@ -434,6 +464,9 @@ export function SiteContentEditor() {
     setStatus("idle");
     setError(null);
   }
+
+  // Site content editing is admin-only (members shouldn't reach this route).
+  if (!isAdmin) return <Navigate to="/admin" replace />;
 
   const save = async () => {
     setStatus("saving");
@@ -466,6 +499,8 @@ export function SiteContentEditor() {
         return <FaqEditor value={draft as FaqContent} onChange={setDraft} />;
       case "cta":
         return <CtaEditor value={draft as CtaContent} onChange={setDraft} />;
+      case "custom":
+        return <CustomEditor value={draft as CustomContent} onChange={setDraft} />;
     }
   };
 

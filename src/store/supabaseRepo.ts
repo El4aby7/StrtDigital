@@ -26,7 +26,9 @@ function rowToUser(r: Row): User {
     email: (r.email as string) ?? "",
     role: (r.role as string) ?? "Member",
     avatar_color: (r.avatar_color as string) ?? "#14B8C4",
+    avatar_url: (r.avatar_url as string | null) ?? null,
     targets: (r.targets as UserTargets) ?? { leads: 0, won: 0, revenue: 0, conversion: 0 },
+    is_admin: Boolean(r.is_admin),
   };
 }
 
@@ -174,7 +176,9 @@ export async function upsertProfile(user: User): Promise<void> {
     email: user.email,
     role: user.role,
     avatar_color: user.avatar_color,
+    avatar_url: user.avatar_url,
     targets: user.targets,
+    is_admin: user.is_admin,
   });
   if (error) throw error;
 }
@@ -185,6 +189,33 @@ export async function upsertProfile(user: User): Promise<void> {
 export async function deleteProfile(id: string): Promise<void> {
   const { error } = await supabase.from("profiles").delete().eq("id", id);
   if (error) throw error;
+}
+
+// ── create a member login account (via the admin-only edge function) ─────────
+export async function createMember(input: {
+  email: string;
+  password: string;
+  name: string;
+  role: string;
+  color: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const { data, error } = await supabase.functions.invoke("create-member", { body: input });
+  if (error) {
+    // surface the function's JSON error message when present
+    let message = error.message;
+    try {
+      const ctx = (error as { context?: Response }).context;
+      if (ctx && typeof ctx.json === "function") {
+        const body = await ctx.json();
+        if (body?.error) message = body.error;
+      }
+    } catch {
+      // keep the generic message
+    }
+    return { ok: false, error: message };
+  }
+  if (data?.error) return { ok: false, error: data.error };
+  return { ok: true };
 }
 
 // ── receipt storage ──────────────────────────────────────────────────────────
@@ -203,4 +234,14 @@ export async function signedReceiptUrl(path: string, expiresIn = 120): Promise<s
 
 export async function deleteReceipt(path: string): Promise<void> {
   await supabase.storage.from("receipts").remove([path]);
+}
+
+// ── avatar storage (public bucket) ───────────────────────────────────────────
+export async function uploadAvatar(file: File, userId: string): Promise<string> {
+  const ext = file.name.split(".").pop() || "png";
+  const path = `${userId}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+  return data.publicUrl;
 }

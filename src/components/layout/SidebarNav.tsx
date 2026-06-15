@@ -2,14 +2,15 @@ import { NavLink } from "react-router-dom";
 import { LayoutDashboard, Users, Receipt, Trophy, FileText, LogOut, X } from "lucide-react";
 import { Logo } from "../ui/Logo";
 import { useAuth } from "../../store/AuthContext";
+import { useAppData } from "../../store/AppDataProvider";
 import { cn } from "../../lib/cn";
 
 const nav = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/admin/leads", label: "Leads", icon: Users, end: false },
-  { to: "/admin/expenses", label: "Expenses", icon: Receipt, end: false },
-  { to: "/admin/team", label: "Team KPIs", icon: Trophy, end: false },
-  { to: "/admin/content", label: "Site Content", icon: FileText, end: false },
+  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true, adminOnly: false },
+  { to: "/admin/leads", label: "Leads", icon: Users, end: false, adminOnly: false },
+  { to: "/admin/expenses", label: "Expenses", icon: Receipt, end: false, adminOnly: false },
+  { to: "/admin/team", label: "Team KPIs", icon: Trophy, end: false, adminOnly: false },
+  { to: "/admin/content", label: "Site Content", icon: FileText, end: false, adminOnly: true },
 ];
 
 export function SidebarNav({
@@ -20,6 +21,8 @@ export function SidebarNav({
   onClose: () => void;
 }) {
   const { logout } = useAuth();
+  const { isAdmin } = useAppData();
+  const items = nav.filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <>
@@ -47,7 +50,7 @@ export function SidebarNav({
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-4">
-          {nav.map((item) => (
+          {items.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

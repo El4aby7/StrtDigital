@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
-import { Trophy, Crown, Pencil, Info } from "lucide-react";
+import { Trophy, Crown, Pencil, Info, UserPlus } from "lucide-react";
 import { PageHeader } from "../../components/admin/PageHeader";
+import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { ProgressRing } from "../../components/ui/ProgressRing";
 import { TeamMemberModal } from "../../components/admin/TeamMemberModal";
+import { AddMemberModal } from "../../components/admin/AddMemberModal";
 import { useAppData, type UserKpis } from "../../store/AppDataProvider";
 import { useAuth } from "../../store/AuthContext";
 import { formatCurrency, formatPercent } from "../../lib/format";
@@ -28,7 +30,7 @@ function Bar({ label, value, target, format }: { label: string; value: number; t
   );
 }
 
-function UserCard({ k, onEdit }: { k: UserKpis; onEdit: () => void }) {
+function UserCard({ k, onEdit, canEdit }: { k: UserKpis; onEdit: () => void; canEdit: boolean }) {
   const revenuePct = k.user.targets.revenue ? k.revenue / k.user.targets.revenue : 0;
   return (
     <Card>
@@ -64,12 +66,14 @@ function UserCard({ k, onEdit }: { k: UserKpis; onEdit: () => void }) {
         <Stat label="Spend" value={formatCurrency(k.expenses, { compact: true })} />
       </div>
 
-      <button
-        onClick={onEdit}
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-line py-2 text-sm font-medium text-slate-600 transition-colors hover:border-teal hover:text-teal"
-      >
-        <Pencil className="h-4 w-4" /> Edit profile &amp; targets
-      </button>
+      {canEdit && (
+        <button
+          onClick={onEdit}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-line py-2 text-sm font-medium text-slate-600 transition-colors hover:border-teal hover:text-teal"
+        >
+          <Pencil className="h-4 w-4" /> Edit profile &amp; targets
+        </button>
+      )}
     </Card>
   );
 }
@@ -84,13 +88,15 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 export function UserKPIs() {
-  const { allUserKpis } = useAppData();
+  const { allUserKpis, isAdmin } = useAppData();
   const { user: authUser } = useAuth();
-  const kpis = allUserKpis();
+  // Admin accounts (e.g. the owner login) are not part of the team roster.
+  const kpis = allUserKpis().filter((k) => !k.user.is_admin);
   const leaderboard = useMemo(() => [...kpis].sort((a, b) => b.revenue - a.revenue), [kpis]);
 
   const [editing, setEditing] = useState<User | null>(null);
   const [open, setOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const openEdit = (u: User) => {
     setEditing(u);
     setOpen(true);
@@ -98,7 +104,17 @@ export function UserKPIs() {
 
   return (
     <div>
-      <PageHeader title="Team KPIs" subtitle="Per-user progress against targets, plus the leaderboard." />
+      <PageHeader
+        title="Team KPIs"
+        subtitle="Per-user progress against targets, plus the leaderboard."
+        actions={
+          isAdmin ? (
+            <Button icon={UserPlus} onClick={() => setAddOpen(true)}>
+              Add member
+            </Button>
+          ) : undefined
+        }
+      />
 
       <div className="mb-6 flex items-start gap-2 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-slate-600">
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
@@ -142,7 +158,12 @@ export function UserKPIs() {
       {/* per-user cards */}
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
         {kpis.map((k) => (
-          <UserCard key={k.user.id} k={k} onEdit={() => openEdit(k.user)} />
+          <UserCard
+            key={k.user.id}
+            k={k}
+            canEdit={isAdmin || k.user.id === authUser?.id}
+            onEdit={() => openEdit(k.user)}
+          />
         ))}
       </div>
 
@@ -150,8 +171,10 @@ export function UserKPIs() {
         open={open}
         onClose={() => setOpen(false)}
         member={editing}
-        isSelf={!!editing && !!authUser && editing.email === authUser.email}
+        isAdmin={isAdmin}
+        isSelf={!!editing && !!authUser && editing.id === authUser.id}
       />
+      <AddMemberModal open={addOpen} onClose={() => setAddOpen(false)} />
     </div>
   );
 }

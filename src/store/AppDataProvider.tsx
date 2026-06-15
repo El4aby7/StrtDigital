@@ -34,6 +34,10 @@ interface AppDataContextValue {
   expenses: Expense[];
   /** true until the first Supabase load resolves */
   loading: boolean;
+  /** the signed-in user's profile (null until loaded) */
+  currentUser: User | null;
+  /** convenience: is the signed-in user an admin? */
+  isAdmin: boolean;
   // lookups
   getUser: (id: string) => User | undefined;
   getLead: (id: string) => Lead | undefined;
@@ -72,6 +76,7 @@ function reportError(context: string) {
 }
 
 export function AppDataProvider({ children }: { children: ReactNode }) {
+  const { user: authUser, isAuthenticated, loading: authLoading } = useAuth();
   const [data, setData] = useState<AppData>(EMPTY);
   const [loading, setLoading] = useState(true);
 
@@ -87,9 +92,20 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Load CRM data only once the auth session is restored and the user is signed
+  // in, so every Supabase request carries the user's token. Loading on mount
+  // raced session restoration: an early request went out as `anon`, RLS returned
+  // an empty array, and that empty response could overwrite the real data.
   useEffect(() => {
+    if (authLoading) return; // wait for the session check to resolve
+    if (!isAuthenticated) {
+      setData(EMPTY);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
     reload();
-  }, [reload]);
+  }, [authLoading, isAuthenticated, reload]);
 
   const getUser = useCallback((id: string) => data.users.find((u) => u.id === id), [data.users]);
   const getLead = useCallback((id: string) => data.leads.find((l) => l.id === id), [data.leads]);
@@ -221,6 +237,12 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     repo.deleteProfile(id).catch(reportError("deleteUser"));
   }, []);
 
+  const currentUser = useMemo(
+    () => data.users.find((u) => u.id === authUser?.id) ?? null,
+    [data.users, authUser?.id],
+  );
+  const isAdmin = !!currentUser?.is_admin;
+
   const expensesByLead = useCallback(
     (leadId: string) => data.expenses.filter((e) => e.lead_id === leadId),
     [data.expenses],
@@ -271,6 +293,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       leads: data.leads,
       expenses: data.expenses,
       loading,
+      currentUser,
+      isAdmin,
       getUser,
       getLead,
       upsertLead,
@@ -291,6 +315,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     [
       data,
       loading,
+      currentUser,
+      isAdmin,
       getUser,
       getLead,
       upsertLead,
@@ -320,7 +346,9 @@ const FALLBACK_USER: User = {
   email: "",
   role: "Member",
   avatar_color: "#14B8C4",
+  avatar_url: null,
   targets: { leads: 0, won: 0, revenue: 0, conversion: 0 },
+  is_admin: false,
 };
 
 // eslint-disable-next-line react-refresh/only-export-components

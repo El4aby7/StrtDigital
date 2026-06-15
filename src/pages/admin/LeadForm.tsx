@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, Link, Navigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "../../components/admin/PageHeader";
 import { Card } from "../../components/ui/Card";
@@ -21,9 +21,11 @@ const inputClass =
 export function LeadForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getLead, upsertLead, users } = useAppData();
+  const { getLead, upsertLead, users, isAdmin } = useAppData();
   const existing = id ? getLead(id) : undefined;
   const isEdit = !!existing;
+  // Leads are assigned to team members, not admin accounts.
+  const assignable = users.filter((u) => !u.is_admin);
 
   const [form, setForm] = useState({
     name: existing?.name ?? "",
@@ -33,12 +35,15 @@ export function LeadForm() {
     source: existing?.source ?? ("Website" as LeadSource),
     value: existing?.value?.toString() ?? "",
     stage: existing?.stage ?? ("new" as LeadStage),
-    owner_id: existing?.owner_id ?? users[0]?.id ?? "",
+    owner_id: existing?.owner_id ?? assignable[0]?.id ?? "",
     notes: existing?.notes ?? "",
   });
 
   const set = (key: keyof typeof form, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
+
+  // Only admins can create/edit leads (members are view-only).
+  if (!isAdmin) return <Navigate to="/admin/leads" replace />;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,7 +113,7 @@ export function LeadForm() {
             </Field>
             <Field label="Assigned to">
               <select className={inputClass} value={form.owner_id} onChange={(e) => set("owner_id", e.target.value)}>
-                {users.map((u) => (
+                {assignable.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.name}
                   </option>

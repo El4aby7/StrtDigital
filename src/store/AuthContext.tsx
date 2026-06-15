@@ -15,6 +15,7 @@ import { supabase, setRememberMe } from "../lib/supabase";
 // (browser → Supabase), which is what keeps this static GitHub Pages build working.
 
 interface AuthUser {
+  id: string;
   name: string;
   email: string;
 }
@@ -52,7 +53,7 @@ function toAuthUser(user: User | null): AuthUser | null {
       .split("@")[0]
       .replace(/[._-]/g, " ")
       .replace(/\b\w/g, (c) => c.toUpperCase());
-  return { name, email };
+  return { id: user.id, name, email };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

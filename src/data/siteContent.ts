@@ -133,6 +133,17 @@ export interface CtaContent {
   formNote: string;
 }
 
+// Admin-added custom fields — fully editable from the UI, rendered on the homepage.
+export interface CustomField {
+  id: string;
+  label: string;
+  value: string;
+}
+export interface CustomContent {
+  heading: string;
+  fields: CustomField[];
+}
+
 export interface SiteContent {
   hero: HeroContent;
   services: ServicesContent;
@@ -142,6 +153,7 @@ export interface SiteContent {
   testimonials: TestimonialsContent;
   faqs: FaqContent;
   cta: CtaContent;
+  custom: CustomContent;
 }
 
 export type SiteContentKey = keyof SiteContent;
@@ -240,6 +252,10 @@ export const defaultContent: SiteContent = {
     successCopy: "We'll reach out within 24 hours to schedule your consultation.",
     formNote: "No spam. Reply within 24h.",
   },
+  custom: {
+    heading: "More about us",
+    fields: [],
+  },
 };
 
 // Human-readable labels for the editor's section tabs.
@@ -252,4 +268,5 @@ export const SECTION_LABELS: Record<SiteContentKey, string> = {
   testimonials: "Testimonials",
   faqs: "FAQ",
   cta: "Contact / CTA",
+  custom: "Custom",
 };

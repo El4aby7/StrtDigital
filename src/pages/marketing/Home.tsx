@@ -6,6 +6,7 @@ import { Process } from "../../components/marketing/Process";
 import { Testimonials } from "../../components/marketing/Testimonials";
 import { FAQ } from "../../components/marketing/FAQ";
 import { CTABand } from "../../components/marketing/CTABand";
+import { CustomBlocks } from "../../components/marketing/CustomBlocks";
 
 export function Home() {
   return (
@@ -16,6 +17,7 @@ export function Home() {
       <PortfolioCarousel />
       <Process />
       <Testimonials />
+      <CustomBlocks />
       <FAQ />
       <CTABand />
     </>

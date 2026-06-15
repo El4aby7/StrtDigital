@@ -12,7 +12,7 @@ import { LEAD_STAGES, STAGE_LABELS, type Lead, type LeadStage } from "../../type
 import { cn } from "../../lib/cn";
 
 export function LeadsOverview() {
-  const { leads, users, getUser, setLeadStage, deleteLead } = useAppData();
+  const { leads, users, getUser, setLeadStage, deleteLead, isAdmin } = useAppData();
   const navigate = useNavigate();
   const [view, setView] = useState<"kanban" | "table">("kanban");
   const [dragId, setDragId] = useState<string | null>(null);
@@ -57,23 +57,27 @@ export function LeadsOverview() {
     { key: "source", header: "Source", cell: (l) => <span className="text-slate-600">{l.source}</span> },
     { key: "owner", header: "Owner", cell: (l) => <span className="text-slate-600">{ownerName(l.owner_id)}</span> },
     { key: "value", header: "Value", align: "right", cell: (l) => <span className="font-semibold text-navy">{formatCurrency(l.value)}</span> },
-    {
-      key: "actions",
-      header: "",
-      align: "right",
-      cell: (l) => (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            removeLead(l);
-          }}
-          className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-          aria-label={`Delete ${l.company}`}
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
-      ),
-    },
+    ...(isAdmin
+      ? [
+          {
+            key: "actions",
+            header: "",
+            align: "right" as const,
+            cell: (l: Lead) => (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeLead(l);
+                }}
+                className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                aria-label={`Delete ${l.company}`}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -87,9 +91,11 @@ export function LeadsOverview() {
               <ViewBtn active={view === "kanban"} onClick={() => setView("kanban")} icon={LayoutGrid} label="Board" />
               <ViewBtn active={view === "table"} onClick={() => setView("table")} icon={List} label="Table" />
             </div>
-            <Button onClick={() => navigate("/admin/leads/new")} icon={Plus}>
-              New lead
-            </Button>
+            {isAdmin && (
+              <Button onClick={() => navigate("/admin/leads/new")} icon={Plus}>
+                New lead
+              </Button>
+            )}
           </>
         }
       />
@@ -144,8 +150,8 @@ export function LeadsOverview() {
                   {items.map((l) => (
                     <article
                       key={l.id}
-                      draggable
-                      onDragStart={() => setDragId(l.id)}
+                      draggable={isAdmin}
+                      onDragStart={() => isAdmin && setDragId(l.id)}
                       onDragEnd={() => setDragId(null)}
                       onClick={() => navigate(`/admin/leads/${l.id}`)}
                       className={cn(
@@ -159,17 +165,19 @@ export function LeadsOverview() {
                           <div className="text-xs text-slate-500">{l.name}</div>
                         </div>
                         <div className="flex shrink-0 items-center gap-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeLead(l);
-                            }}
-                            className="grid h-6 w-6 place-items-center rounded text-slate-300 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
-                            aria-label={`Delete ${l.company}`}
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                          <GripVertical className="h-4 w-4 text-slate-300 group-hover:text-slate-400" />
+                          {isAdmin && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeLead(l);
+                              }}
+                              className="grid h-6 w-6 place-items-center rounded text-slate-300 opacity-0 transition-all hover:bg-rose-50 hover:text-rose-600 group-hover:opacity-100"
+                              aria-label={`Delete ${l.company}`}
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          {isAdmin && <GripVertical className="h-4 w-4 text-slate-300 group-hover:text-slate-400" />}
                         </div>
                       </div>
                       <div className="mt-3 flex items-center justify-between">

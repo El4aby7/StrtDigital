@@ -35,6 +35,7 @@ export function LeadDetail() {
     leadAcquisitionCost,
     linkExpenseToLead,
     deleteLead,
+    isAdmin,
   } = useAppData();
 
   const lead = getLead(id);
@@ -80,14 +81,16 @@ export function LeadDetail() {
         title={lead.company}
         subtitle={`${lead.name} · ${lead.source}`}
         actions={
-          <>
-            <Button variant="outline" icon={Pencil} onClick={() => navigate(`/admin/leads/${lead.id}/edit`)}>
-              Edit
-            </Button>
-            <Button variant="outline" icon={Trash2} onClick={removeLead} className="text-rose-600 hover:border-rose-300 hover:text-rose-700">
-              Delete
-            </Button>
-          </>
+          isAdmin ? (
+            <>
+              <Button variant="outline" icon={Pencil} onClick={() => navigate(`/admin/leads/${lead.id}/edit`)}>
+                Edit
+              </Button>
+              <Button variant="outline" icon={Trash2} onClick={removeLead} className="text-rose-600 hover:border-rose-300 hover:text-rose-700">
+                Delete
+              </Button>
+            </>
+          ) : undefined
         }
       />
 
@@ -100,12 +103,14 @@ export function LeadDetail() {
               {LEAD_STAGES.map((stage) => (
                 <button
                   key={stage}
-                  onClick={() => setLeadStage(lead.id, stage)}
+                  onClick={() => isAdmin && setLeadStage(lead.id, stage)}
+                  disabled={!isAdmin}
                   className={cn(
                     "rounded-full px-3 py-1.5 text-xs font-semibold transition-colors",
                     lead.stage === stage
                       ? "bg-brand-gradient text-white shadow-card"
                       : "bg-surface text-slate-500 hover:text-navy",
+                    !isAdmin && "cursor-default",
                   )}
                 >
                   {STAGE_LABELS[stage]}
@@ -139,17 +144,19 @@ export function LeadDetail() {
           {/* activity */}
           <Card>
             <h3 className="mb-4 font-display text-lg font-bold text-navy">Activity</h3>
-            <form onSubmit={submitNote} className="mb-5 flex gap-2">
-              <input
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Add a note…"
-                className="flex-1 rounded-xl border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-teal focus:bg-white"
-              />
-              <Button type="submit" icon={Send} size="sm">
-                Add
-              </Button>
-            </form>
+            {isAdmin && (
+              <form onSubmit={submitNote} className="mb-5 flex gap-2">
+                <input
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="Add a note…"
+                  className="flex-1 rounded-xl border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-teal focus:bg-white"
+                />
+                <Button type="submit" icon={Send} size="sm">
+                  Add
+                </Button>
+              </form>
+            )}
             <ol className="relative space-y-4 border-l border-line pl-5">
               {lead.activity.map((a) => (
                 <li key={a.id} className="relative">
@@ -200,9 +207,11 @@ export function LeadDetail() {
           <Card>
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-display text-lg font-bold text-navy">Linked expenses</h3>
-              <Button size="sm" variant="outline" icon={Plus} onClick={() => setExpenseOpen(true)}>
-                Add
-              </Button>
+              {isAdmin && (
+                <Button size="sm" variant="outline" icon={Plus} onClick={() => setExpenseOpen(true)}>
+                  Add
+                </Button>
+              )}
             </div>
             {linked.length === 0 ? (
               <p className="rounded-xl border border-dashed border-line py-6 text-center text-xs text-slate-400">
@@ -221,13 +230,15 @@ export function LeadDetail() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold text-navy">{formatCurrency(e.amount)}</span>
-                      <button
-                        onClick={() => linkExpenseToLead(e.id, null)}
-                        className="grid h-7 w-7 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-                        aria-label="Unlink expense"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
+                      {isAdmin && (
+                        <button
+                          onClick={() => linkExpenseToLead(e.id, null)}
+                          className="grid h-7 w-7 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                          aria-label="Unlink expense"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   </li>
                 ))}

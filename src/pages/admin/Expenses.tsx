@@ -10,7 +10,7 @@ import { formatCurrency, formatDate } from "../../lib/format";
 import { EXPENSE_CATEGORIES, type Expense } from "../../types";
 
 export function Expenses() {
-  const { expenses, leads, linkExpenseToLead, deleteExpense } = useAppData();
+  const { expenses, leads, linkExpenseToLead, deleteExpense, isAdmin } = useAppData();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Expense | undefined>();
   const [category, setCategory] = useState("");
@@ -58,38 +58,47 @@ export function Expenses() {
     {
       key: "lead",
       header: "Linked lead",
-      cell: (e) => (
-        <select
-          value={e.lead_id ?? ""}
-          onClick={(ev) => ev.stopPropagation()}
-          onChange={(ev) => linkExpenseToLead(e.id, ev.target.value || null)}
-          className="max-w-[180px] rounded-lg border border-line bg-white px-2 py-1 text-xs text-navy outline-none focus:border-teal"
-        >
-          <option value="">— Unlinked —</option>
-          {leads.map((l) => (
-            <option key={l.id} value={l.id}>
-              {l.company}
-            </option>
-          ))}
-        </select>
-      ),
+      cell: (e) =>
+        isAdmin ? (
+          <select
+            value={e.lead_id ?? ""}
+            onClick={(ev) => ev.stopPropagation()}
+            onChange={(ev) => linkExpenseToLead(e.id, ev.target.value || null)}
+            className="max-w-[180px] rounded-lg border border-line bg-white px-2 py-1 text-xs text-navy outline-none focus:border-teal"
+          >
+            <option value="">— Unlinked —</option>
+            {leads.map((l) => (
+              <option key={l.id} value={l.id}>
+                {l.company}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <span className="text-xs text-slate-600">
+            {leads.find((l) => l.id === e.lead_id)?.company ?? "—"}
+          </span>
+        ),
     },
     { key: "amount", header: "Amount", align: "right", cell: (e) => <span className="font-semibold text-navy">{formatCurrency(e.amount)}</span> },
-    {
-      key: "actions",
-      header: "",
-      align: "right",
-      cell: (e) => (
-        <div className="flex justify-end gap-1">
-          <button onClick={() => openEdit(e)} className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-surface hover:text-teal" aria-label="Edit">
-            <Pencil className="h-4 w-4" />
-          </button>
-          <button onClick={() => deleteExpense(e.id)} className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Delete">
-            <Trash2 className="h-4 w-4" />
-          </button>
-        </div>
-      ),
-    },
+    ...(isAdmin
+      ? [
+          {
+            key: "actions",
+            header: "",
+            align: "right" as const,
+            cell: (e: Expense) => (
+              <div className="flex justify-end gap-1">
+                <button onClick={() => openEdit(e)} className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-surface hover:text-teal" aria-label="Edit">
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button onClick={() => deleteExpense(e.id)} className="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-rose-50 hover:text-rose-600" aria-label="Delete">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -98,9 +107,11 @@ export function Expenses() {
         title="Expenses"
         subtitle="Track and document every cost — link each one to a lead."
         actions={
-          <Button onClick={openAdd} icon={Plus}>
-            Add expense
-          </Button>
+          isAdmin ? (
+            <Button onClick={openAdd} icon={Plus}>
+              Add expense
+            </Button>
+          ) : undefined
         }
       />
 
@@ -140,7 +151,7 @@ export function Expenses() {
               Total
             </td>
             <td className="px-4 py-3 text-right">{formatCurrency(total)}</td>
-            <td className="px-4 py-3" />
+            {isAdmin && <td className="px-4 py-3" />}
           </>
         }
       />

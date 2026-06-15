@@ -3,6 +3,7 @@ import { Trash2 } from "lucide-react";
 import { Modal } from "../ui/Modal";
 import { Button } from "../ui/Button";
 import { useAppData } from "../../store/AppDataProvider";
+import { cn } from "../../lib/cn";
 import type { User } from "../../types";
 
 const inputClass =
@@ -12,11 +13,13 @@ interface Props {
   open: boolean;
   onClose: () => void;
   member: User | null;
-  /** when true, the "Remove from team" action is hidden (can't remove yourself) */
+  /** the signed-in user is an admin — can edit roles and remove members */
+  isAdmin?: boolean;
+  /** the member being edited is the signed-in user (can't remove yourself) */
   isSelf?: boolean;
 }
 
-export function TeamMemberModal({ open, onClose, member, isSelf }: Props) {
+export function TeamMemberModal({ open, onClose, member, isAdmin, isSelf }: Props) {
   const { upsertUser, deleteUser } = useAppData();
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
@@ -76,8 +79,16 @@ export function TeamMemberModal({ open, onClose, member, isSelf }: Props) {
             <input value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
           </label>
           <label className="block">
-            <span className="mb-1.5 block text-sm font-medium text-navy">Role</span>
-            <input value={role} onChange={(e) => setRole(e.target.value)} className={inputClass} placeholder="e.g. Account Manager" />
+            <span className="mb-1.5 block text-sm font-medium text-navy">
+              Role {!isAdmin && <span className="text-xs font-normal text-slate-400">(set by admin)</span>}
+            </span>
+            <input
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className={cn(inputClass, !isAdmin && "cursor-not-allowed opacity-60")}
+              placeholder="e.g. Account Manager"
+              disabled={!isAdmin}
+            />
           </label>
         </div>
 
@@ -98,12 +109,12 @@ export function TeamMemberModal({ open, onClose, member, isSelf }: Props) {
         </div>
 
         <div className="flex items-center justify-between gap-2 pt-2">
-          {!isSelf ? (
+          {isAdmin && !isSelf ? (
             <Button type="button" variant="outline" icon={Trash2} onClick={remove} className="text-rose-600 hover:border-rose-300 hover:text-rose-700">
               Remove
             </Button>
           ) : (
-            <span className="text-xs text-slate-400">This is you</span>
+            <span />
           )}
           <div className="flex gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
