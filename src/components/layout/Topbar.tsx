@@ -1,8 +1,12 @@
-import { Menu, Search, Bell } from "lucide-react";
+import { Menu, Search, Bell, Sun, Moon } from "lucide-react";
 import { useAuth } from "../../store/AuthContext";
+import { useTheme } from "../../store/ThemeProvider";
+import { cn } from "../../lib/cn";
 
 export function Topbar({ onMenu }: { onMenu: () => void }) {
   const { user } = useAuth();
+  const { theme, toggle } = useTheme();
+  const dark = theme === "dark";
   const initials = (user?.name ?? "Admin")
     .split(" ")
     .map((p) => p[0])
@@ -31,6 +35,17 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
       </div>
 
       <div className="ml-auto flex items-center gap-2">
+        <button
+          onClick={toggle}
+          role="switch"
+          aria-checked={dark}
+          aria-label={dark ? "Switch to light mode" : "Switch to night mode"}
+          title={dark ? "Light mode" : "Night mode"}
+          className="relative grid h-10 w-10 place-items-center rounded-lg text-slate-500 hover:bg-surface"
+        >
+          <Sun className={cn("absolute h-5 w-5 transition-all duration-300", dark ? "scale-0 -rotate-90 opacity-0" : "scale-100 rotate-0 opacity-100")} />
+          <Moon className={cn("absolute h-5 w-5 transition-all duration-300", dark ? "scale-100 rotate-0 opacity-100" : "scale-0 rotate-90 opacity-0")} />
+        </button>
         <button
           className="relative grid h-10 w-10 place-items-center rounded-lg text-slate-500 hover:bg-surface"
           aria-label="Notifications"

@@ -20,6 +20,20 @@ import {
   ShieldCheck,
   Globe,
   Users,
+  Car,
+  UtensilsCrossed,
+  Sofa,
+  LayoutTemplate,
+  Building2,
+  Linkedin,
+  Twitter,
+  Instagram,
+  Facebook,
+  Youtube,
+  Github,
+  Send,
+  Mail,
+  Phone,
   type LucideIcon,
 } from "lucide-react";
 
@@ -39,10 +53,56 @@ export const ICONS: Record<string, LucideIcon> = {
   ShieldCheck,
   Globe,
   Users,
+  Car,
+  UtensilsCrossed,
+  Sofa,
+  LayoutTemplate,
+  Building2,
 };
 export const ICON_NAMES = Object.keys(ICONS);
 export function resolveIcon(name: string): LucideIcon {
   return ICONS[name] ?? Sparkles;
+}
+
+// Social platform registry — icon + brand colour for each platform the rail and
+// footer can render. Stored as a string key so it stays serialisable to Supabase.
+export const SOCIAL_ICONS: Record<string, LucideIcon> = {
+  Instagram,
+  Facebook,
+  Linkedin,
+  Twitter,
+  Youtube,
+  Github,
+  Telegram: Send,
+  Website: Globe,
+  Email: Mail,
+  Phone,
+};
+export const SOCIAL_ICON_NAMES = Object.keys(SOCIAL_ICONS);
+export function resolveSocialIcon(name: string): LucideIcon {
+  return SOCIAL_ICONS[name] ?? Globe;
+}
+// Brand colours used for the hover state of each social chip.
+export const SOCIAL_BRAND_COLOR: Record<string, string> = {
+  Instagram: "#E4405F",
+  Facebook: "#1877F2",
+  Linkedin: "#0A66C2",
+  Twitter: "#0F1419",
+  Youtube: "#FF0000",
+  Github: "#181717",
+  Telegram: "#26A5E4",
+  Website: "#14B8C4",
+  Email: "#EA4335",
+  Phone: "#16A34A",
+};
+// WhatsApp keeps its own well-known brand green wherever it appears.
+export const WHATSAPP_GREEN = "#25D366";
+
+// Build a wa.me deep link from a raw number (any formatting) + prefilled message.
+export function whatsappHref(number: string, message: string): string {
+  const digits = number.replace(/[^\d]/g, "");
+  const text = message.trim() ? `?text=${encodeURIComponent(message)}` : "";
+  return `https://wa.me/${digits}${text}`;
 }
 
 export interface IconItem {
@@ -62,6 +122,24 @@ export interface ProcessStepItem {
   number: string;
   title: string;
   copy: string;
+}
+// A single template we offer, shown as a card inside its category.
+export interface TemplateItem {
+  id: string;
+  name: string;
+  tag: string; // short kind label, e.g. "Inventory + Leads"
+  blurb: string;
+  cover: string; // CSS background (gradient) — shown while/if no image is set
+  image?: string; // optional preview image URL (screenshot); overlays the cover
+  url: string; // optional live-preview link
+}
+// A category groups templates (Cars dealership, Restaurants, …). Fully editable
+// from the admin — categories and their templates can be added or removed.
+export interface TemplateCategory {
+  id: string;
+  name: string;
+  icon: string; // key into ICONS
+  items: TemplateItem[];
 }
 export interface TestimonialItem {
   quote: string;
@@ -113,6 +191,12 @@ export interface ProcessContent {
   subtitle: string;
   steps: ProcessStepItem[];
 }
+export interface TemplatesContent {
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  categories: TemplateCategory[];
+}
 export interface TestimonialsContent {
   eyebrow: string;
   title: string;
@@ -144,15 +228,36 @@ export interface CustomContent {
   fields: CustomField[];
 }
 
+// Social links + direct-contact channels. Rendered by the floating SocialRail on
+// every public page and (the links) by the footer.
+export interface SocialLink {
+  id: string;
+  platform: string; // key into SOCIAL_ICONS
+  label: string;
+  url: string;
+  enabled: boolean;
+}
+export interface SocialContent {
+  /** master switch for the floating side rail */
+  railEnabled: boolean;
+  whatsappEnabled: boolean;
+  whatsappNumber: string; // international format, any punctuation allowed
+  whatsappMessage: string; // prefilled chat message
+  email: string;
+  links: SocialLink[];
+}
+
 export interface SiteContent {
   hero: HeroContent;
   services: ServicesContent;
   whyUs: WhyUsContent;
   portfolio: PortfolioContent;
+  templates: TemplatesContent;
   process: ProcessContent;
   testimonials: TestimonialsContent;
   faqs: FaqContent;
   cta: CtaContent;
+  social: SocialContent;
   custom: CustomContent;
 }
 
@@ -212,6 +317,41 @@ export const defaultContent: SiteContent = {
       { id: "skyline", name: "Skyline Realty", category: "SEO", result: "Top-3 for 120 keywords", blurb: "Technical SEO overhaul that owned the local market.", cover: "linear-gradient(135deg,#0D1B2A,#2EE6C5)" },
     ],
   },
+  templates: {
+    eyebrow: "Templates",
+    title: "Launch-ready templates, tailored to your industry",
+    subtitle:
+      "Start from a design we've already crafted for your field — then we customise it to your brand. Live in days, not months.",
+    categories: [
+      {
+        id: "cars",
+        name: "Cars Dealership",
+        icon: "Car",
+        items: [
+          { id: "cars-1", name: "AutoHub", tag: "Inventory + Leads", blurb: "Searchable vehicle inventory with finance enquiry forms that capture buyers.", cover: "linear-gradient(135deg,#0D1B2A,#14B8C4)", url: "" },
+          { id: "cars-2", name: "DriveLine", tag: "Showroom", blurb: "A full-screen showroom with book-a-test-drive built right in.", cover: "linear-gradient(135deg,#1B3147,#2EE6C5)", url: "" },
+        ],
+      },
+      {
+        id: "restaurants",
+        name: "Restaurants",
+        icon: "UtensilsCrossed",
+        items: [
+          { id: "rest-1", name: "Saffron", tag: "Menu + Reservations", blurb: "An elegant menu, gallery, and table reservations that fill your seats.", cover: "linear-gradient(135deg,#14B8C4,#2EE6C5)", url: "" },
+          { id: "rest-2", name: "Brewworks", tag: "Online Ordering", blurb: "A café template with online ordering and loyalty rewards.", cover: "linear-gradient(135deg,#0E96A0,#2EE6C5)", url: "" },
+        ],
+      },
+      {
+        id: "furniture",
+        name: "Furniture",
+        icon: "Sofa",
+        items: [
+          { id: "furn-1", name: "Maison", tag: "eCommerce", blurb: "A warm furniture storefront with room-by-room shopping.", cover: "linear-gradient(135deg,#0D1B2A,#2EE6C5)", url: "" },
+          { id: "furn-2", name: "Oak & Co", tag: "Catalogue", blurb: "A minimal catalogue showcasing craftsmanship and finishes.", cover: "linear-gradient(135deg,#1B3147,#14B8C4)", url: "" },
+        ],
+      },
+    ],
+  },
   process: {
     eyebrow: "How we work",
     title: "A simple, proven process",
@@ -252,6 +392,19 @@ export const defaultContent: SiteContent = {
     successCopy: "We'll reach out within 24 hours to schedule your consultation.",
     formNote: "No spam. Reply within 24h.",
   },
+  social: {
+    railEnabled: true,
+    whatsappEnabled: true,
+    whatsappNumber: "",
+    whatsappMessage: "Hi StrtDigital! I'd love a free consultation.",
+    email: "strtdigital.site@gmail.com",
+    links: [
+      { id: "instagram", platform: "Instagram", label: "Instagram", url: "", enabled: true },
+      { id: "facebook", platform: "Facebook", label: "Facebook", url: "", enabled: true },
+      { id: "linkedin", platform: "Linkedin", label: "LinkedIn", url: "", enabled: true },
+      { id: "twitter", platform: "Twitter", label: "X / Twitter", url: "", enabled: true },
+    ],
+  },
   custom: {
     heading: "More about us",
     fields: [],
@@ -264,9 +417,11 @@ export const SECTION_LABELS: Record<SiteContentKey, string> = {
   services: "Services",
   whyUs: "Why Us",
   portfolio: "Portfolio",
+  templates: "Templates",
   process: "Process",
   testimonials: "Testimonials",
   faqs: "FAQ",
   cta: "Contact / CTA",
+  social: "Social & Contact",
   custom: "Custom",
 };

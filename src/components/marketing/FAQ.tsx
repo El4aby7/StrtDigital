@@ -10,14 +10,14 @@ export function FAQ() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="bg-surface py-20 md:py-28">
+    <section id="faq" className="bg-surface py-20 md:py-28 dark:bg-darksurface">
       <div className="container-page grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
         <Reveal>
           <span className="text-sm font-semibold uppercase tracking-wide text-teal">{faqs.eyebrow}</span>
-          <h2 className="mt-3 font-display text-4xl font-bold text-navy">
+          <h2 className="mt-3 font-display text-4xl font-bold text-navy dark:text-white">
             {faqs.title}
           </h2>
-          <p className="mt-4 text-lg text-slate-600">
+          <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">
             {faqs.subtitleLead}{" "}
             <a
               href="#contact"
@@ -31,7 +31,7 @@ export function FAQ() {
         </Reveal>
 
         <Reveal>
-          <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+          <div className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white shadow-card dark:divide-white/10 dark:border-white/10 dark:bg-darkcard">
             {faqs.items.map((f, i) => {
               const isOpen = open === i;
               return (
@@ -41,7 +41,7 @@ export function FAQ() {
                     className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
                     aria-expanded={isOpen}
                   >
-                    <span className="font-display text-base font-semibold text-navy">{f.q}</span>
+                    <span className="font-display text-base font-semibold text-navy dark:text-white">{f.q}</span>
                     <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-brand-gradient-soft text-teal-dark">
                       {isOpen ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                     </span>
@@ -53,7 +53,7 @@ export function FAQ() {
                     )}
                   >
                     <div className="overflow-hidden">
-                      <p className="px-6 pb-5 text-sm leading-relaxed text-slate-600">{f.a}</p>
+                      <p className="px-6 pb-5 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{f.a}</p>
                     </div>
                   </div>
                 </div>

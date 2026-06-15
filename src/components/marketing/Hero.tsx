@@ -13,21 +13,21 @@ export function Hero() {
 
       <div className="container-page relative grid items-center gap-12 pb-20 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="animate-fade-up">
-          <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-teal-dark">
+          <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs font-semibold text-teal-dark dark:border-white/10 dark:bg-white/5 dark:text-teal-light">
             <TrendingUp className="h-3.5 w-3.5" />
             {hero.badge}
           </span>
-          <h1 className="mt-5 font-display text-5xl font-extrabold leading-[1.05] tracking-tight text-navy sm:text-6xl">
+          <h1 className="mt-5 font-display text-5xl font-extrabold leading-[1.05] tracking-tight text-navy sm:text-6xl dark:text-white">
             {hero.titleLead} <span className="text-gradient">{hero.titleAccent}</span>
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">{hero.subtitle}</p>
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-300">{hero.subtitle}</p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <a href="#contact" onClick={(e) => { e.preventDefault(); scrollToId("contact"); }}>
               <Button size="lg" arrow>
                 {hero.ctaPrimary}
               </Button>
             </a>
-            <a href="#work" onClick={(e) => { e.preventDefault(); scrollToId("work"); }}>
+            <a href="#templates" onClick={(e) => { e.preventDefault(); scrollToId("templates"); }}>
               <Button size="lg" variant="outline">
                 {hero.ctaSecondary}
               </Button>
@@ -50,7 +50,7 @@ export function Hero() {
                   <Star key={i} className="h-4 w-4 fill-current" />
                 ))}
               </div>
-              <p className="text-sm text-slate-500">{hero.ratingText}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{hero.ratingText}</p>
             </div>
           </div>
         </div>
@@ -63,13 +63,13 @@ export function Hero() {
             </div>
           </div>
           {/* floating stat cards */}
-          <div className="absolute -left-6 top-10 rounded-2xl border border-line bg-white p-4 shadow-card">
+          <div className="absolute -left-6 top-10 rounded-2xl border border-line bg-white p-4 shadow-card dark:border-white/10 dark:bg-darkcard">
             <p className="text-xs text-slate-400">{hero.statLiftLabel}</p>
-            <p className="font-display text-2xl font-bold text-navy">{hero.statLiftValue}</p>
+            <p className="font-display text-2xl font-bold text-navy dark:text-white">{hero.statLiftValue}</p>
           </div>
-          <div className="absolute -bottom-6 right-2 rounded-2xl border border-line bg-white p-4 shadow-card">
+          <div className="absolute -bottom-6 right-2 rounded-2xl border border-line bg-white p-4 shadow-card dark:border-white/10 dark:bg-darkcard">
             <p className="text-xs text-slate-400">{hero.statProjectsLabel}</p>
-            <p className="font-display text-2xl font-bold text-navy">{hero.statProjectsValue}</p>
+            <p className="font-display text-2xl font-bold text-navy dark:text-white">{hero.statProjectsValue}</p>
           </div>
         </div>
       </div>

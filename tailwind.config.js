@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -11,6 +12,10 @@ export default {
           700: "#1B3147",
           900: "#0D1B2A",
         },
+        // Night-mode palette (only the public marketing site opts in via `dark:`)
+        darkbg: "#0B1622",
+        darksurface: "#0F1E30",
+        darkcard: "#16263C",
         teal: {
           DEFAULT: "#14B8C4",
           light: "#5AD3DB",

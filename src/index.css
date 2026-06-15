@@ -6,8 +6,27 @@
   html {
     scroll-behavior: smooth;
   }
+  /* Respect users who ask the OS to minimise motion: kill animations, long
+     transitions, and smooth-scroll so nothing slides or fades for them. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
   body {
     @apply bg-white text-navy font-sans antialiased;
+  }
+  /* Night mode for the public marketing tree is driven by explicit dark: variants
+     on each component. */
+  .dark body {
+    @apply bg-darkbg text-slate-200;
   }
   h1, h2, h3, h4, h5 {
     @apply font-display text-navy;
@@ -22,3 +41,26 @@
     @apply bg-brand-gradient bg-clip-text text-transparent;
   }
 }
+
+/* ── Admin night mode ──────────────────────────────────────────────────────
+   The admin app is large and built from many shared light utilities, so instead
+   of adding dark: variants to every screen we remap the handful of tokens it
+   uses, scoped under `.admin-shell` (set on the AdminLayout root). These rules
+   are intentionally UNLAYERED so they win over Tailwind's utility layer by the
+   cascade-layer rule, not by specificity hacks. The public marketing site is
+   never inside `.admin-shell`, so it is completely unaffected. */
+.dark .admin-shell { background-color: #0B1622; color: #CBD5E1; }
+.dark .admin-shell .bg-white { background-color: #16263C; }
+.dark .admin-shell .bg-white\/90 { background-color: rgba(22, 38, 60, 0.9); }
+.dark .admin-shell .bg-surface { background-color: #0B1622; }
+.dark .admin-shell .hover\:bg-surface:hover { background-color: rgba(255, 255, 255, 0.05); }
+.dark .admin-shell .hover\:bg-navy-100:hover { background-color: rgba(255, 255, 255, 0.08); }
+.dark .admin-shell .focus\:bg-white:focus { background-color: #16263C; }
+.dark .admin-shell .text-navy { color: #E6EDF2; }
+.dark .admin-shell .hover\:text-navy:hover { color: #E6EDF2; }
+.dark .admin-shell .text-slate-700 { color: #CBD5E1; }
+.dark .admin-shell .text-slate-600 { color: #CBD5E1; }
+.dark .admin-shell .text-slate-500 { color: #94A3B8; }
+.dark .admin-shell .text-slate-400 { color: #94A3B8; }
+.dark .admin-shell .border-line { border-color: rgba(255, 255, 255, 0.1); }
+.dark .admin-shell .divide-line > :not([hidden]) ~ :not([hidden]) { border-color: rgba(255, 255, 255, 0.1); }

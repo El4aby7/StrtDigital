@@ -1,20 +1,42 @@
-import { useState, type ReactNode } from "react";
+import { useState, useRef, type ReactNode, type ComponentType } from "react";
 import { Navigate } from "react-router-dom";
-import { Plus, Trash2, Check, ExternalLink } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Check,
+  ExternalLink,
+  Upload,
+  Sparkles,
+  LayoutGrid,
+  Award,
+  LayoutTemplate,
+  ListChecks,
+  Quote,
+  HelpCircle,
+  Mail,
+  Share2,
+  Puzzle,
+  Images,
+} from "lucide-react";
 import { PageHeader } from "../../components/admin/PageHeader";
 import { Button } from "../../components/ui/Button";
 import { cn } from "../../lib/cn";
 import { useSiteContent } from "../../store/SiteContentProvider";
 import { useAppData } from "../../store/AppDataProvider";
+import { uploadSiteImage } from "../../store/supabaseRepo";
 import {
   ICON_NAMES,
   SECTION_LABELS,
+  SOCIAL_ICON_NAMES,
   type SiteContent,
   type SiteContentKey,
   type HeroContent,
   type ServicesContent,
   type WhyUsContent,
   type PortfolioContent,
+  type TemplatesContent,
+  type TemplateCategory,
+  type TemplateItem,
   type ProcessContent,
   type TestimonialsContent,
   type FaqContent,
@@ -24,6 +46,8 @@ import {
   type ProcessStepItem,
   type TestimonialItem,
   type FaqItem,
+  type SocialContent,
+  type SocialLink,
   type CustomContent,
   type CustomField,
 } from "../../data/siteContent";
@@ -106,6 +130,80 @@ function IconSelect({ value, onChange }: { value: string; onChange: (v: string) 
   );
 }
 
+// Image field with both a URL input and an "upload from your computer" button that
+// pushes the file to the public site-images bucket and stores the resulting URL.
+function ImageUploadField({
+  value,
+  cover,
+  onChange,
+}: {
+  value: string;
+  cover?: string;
+  onChange: (v: string) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (file?: File) => {
+    if (!file) return;
+    setBusy(true);
+    setErr(null);
+    try {
+      onChange(await uploadSiteImage(file));
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div>
+      <span className="mb-1 block text-xs font-medium text-slate-500">
+        Preview image (upload a screenshot, or paste a URL)
+      </span>
+      <div className="flex items-end gap-3">
+        <div className="flex-1">
+          <input
+            value={value}
+            placeholder="https://…/screenshot.png"
+            onChange={(e) => onChange(e.target.value)}
+            className={inputCls}
+          />
+        </div>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => handleFile(e.target.files?.[0])}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          icon={Upload}
+          disabled={busy}
+          onClick={() => inputRef.current?.click()}
+        >
+          {busy ? "Uploading…" : "Upload"}
+        </Button>
+        <span
+          className="h-10 w-16 shrink-0 overflow-hidden rounded-lg border border-line bg-cover bg-center"
+          style={{
+            background: cover,
+            backgroundImage: value.trim() ? `url(${value})` : undefined,
+            backgroundSize: "cover",
+          }}
+          aria-hidden
+        />
+      </div>
+      {err && <p className="mt-1 text-xs text-rose-500">{err}</p>}
+    </div>
+  );
+}
+
 // Generic add/remove list editor. `render` returns the fields for one item; the
 // supplied `update` merges a partial into that item immutably.
 function ListEditor<T>({
@@ -124,7 +222,10 @@ function ListEditor<T>({
   return (
     <div className="space-y-4">
       {items.map((item, i) => (
-        <div key={i} className="relative rounded-xl border border-line bg-white p-4 pr-12">
+        <div key={i} className="relative rounded-xl border border-line bg-white p-4 pl-5 pr-12">
+          <span className="absolute -left-2.5 -top-2.5 grid h-6 w-6 place-items-center rounded-full bg-brand-gradient text-xs font-bold text-white shadow-card">
+            {i + 1}
+          </span>
           <button
             type="button"
             onClick={() => onChange(items.filter((_, j) => j !== i))}
@@ -258,6 +359,81 @@ function PortfolioEditor({ value, onChange }: { value: PortfolioContent; onChang
                 className="h-10 w-16 shrink-0 rounded-lg border border-line"
                 style={{ background: item.cover }}
                 aria-hidden
+              />
+            </div>
+          </div>
+        )}
+      />
+    </div>
+  );
+}
+
+function TemplatesEditor({ value, onChange }: { value: TemplatesContent; onChange: (v: TemplatesContent) => void }) {
+  const set = (patch: Partial<TemplatesContent>) => onChange({ ...value, ...patch });
+  return (
+    <div className="space-y-3">
+      <Field label="Eyebrow" value={value.eyebrow} onChange={(v) => set({ eyebrow: v })} />
+      <Field label="Title" value={value.title} onChange={(v) => set({ title: v })} />
+      <Field label="Subtitle" textarea value={value.subtitle} onChange={(v) => set({ subtitle: v })} />
+      <p className="text-xs text-slate-500">
+        Each category becomes a filter on the public site. Add or remove categories and the templates inside them freely.
+      </p>
+      <ListEditor<TemplateCategory>
+        items={value.categories}
+        onChange={(categories) => set({ categories })}
+        addLabel="Add category"
+        makeNew={() => ({
+          id: `cat-${Date.now()}`,
+          name: "New category",
+          icon: "LayoutTemplate",
+          items: [],
+        })}
+        render={(cat, update) => (
+          <div className="space-y-3">
+            <Grid>
+              <Field label="Category name" value={cat.name} onChange={(v) => update({ name: v })} />
+              <IconSelect value={cat.icon} onChange={(v) => update({ icon: v })} />
+            </Grid>
+            <div className="rounded-xl border border-line bg-surface p-3">
+              <span className="mb-2 block text-xs font-medium text-slate-500">Templates in “{cat.name}”</span>
+              <ListEditor<TemplateItem>
+                items={cat.items}
+                onChange={(items) => update({ items })}
+                addLabel="Add template"
+                makeNew={() => ({
+                  id: `tpl-${Date.now()}`,
+                  name: "",
+                  tag: "",
+                  blurb: "",
+                  cover: "linear-gradient(135deg,#0D1B2A,#14B8C4)",
+                  image: "",
+                  url: "",
+                })}
+                render={(tpl, updateTpl) => (
+                  <div className="space-y-3">
+                    <Grid>
+                      <Field label="Name" value={tpl.name} onChange={(v) => updateTpl({ name: v })} />
+                      <Field label="Tag (e.g. eCommerce)" value={tpl.tag} onChange={(v) => updateTpl({ tag: v })} />
+                    </Grid>
+                    <Field label="Blurb" textarea rows={2} value={tpl.blurb} onChange={(v) => updateTpl({ blurb: v })} />
+                    <ImageUploadField
+                      value={tpl.image ?? ""}
+                      cover={tpl.cover}
+                      onChange={(v) => updateTpl({ image: v })}
+                    />
+                    <Field
+                      label="Cover gradient (shown if no image)"
+                      value={tpl.cover}
+                      onChange={(v) => updateTpl({ cover: v })}
+                    />
+                    <Field
+                      label="Live preview URL (optional)"
+                      value={tpl.url}
+                      placeholder="https://demo.example.com"
+                      onChange={(v) => updateTpl({ url: v })}
+                    />
+                  </div>
+                )}
               />
             </div>
           </div>
@@ -405,6 +581,142 @@ function CtaEditor({ value, onChange }: { value: CtaContent; onChange: (v: CtaCo
   );
 }
 
+function Toggle({
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-line bg-white px-4 py-3">
+      <span>
+        <span className="block text-sm font-medium text-navy">{label}</span>
+        {hint && <span className="mt-0.5 block text-xs text-slate-500">{hint}</span>}
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={cn(
+          "relative h-6 w-11 shrink-0 rounded-full transition-colors",
+          checked ? "bg-teal" : "bg-slate-300",
+        )}
+      >
+        <span
+          className={cn(
+            "absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all",
+            checked ? "left-[1.375rem]" : "left-0.5",
+          )}
+        />
+      </button>
+    </label>
+  );
+}
+
+function SocialEditor({ value, onChange }: { value: SocialContent; onChange: (v: SocialContent) => void }) {
+  const set = (patch: Partial<SocialContent>) => onChange({ ...value, ...patch });
+  return (
+    <div className="space-y-5">
+      {/* WhatsApp direct-contact */}
+      <div className="space-y-3 rounded-xl border border-line bg-white p-4">
+        <h3 className="text-sm font-semibold text-navy">WhatsApp contact</h3>
+        <Toggle
+          label="Show WhatsApp button"
+          hint="A floating chat button on every public page."
+          checked={value.whatsappEnabled}
+          onChange={(whatsappEnabled) => set({ whatsappEnabled })}
+        />
+        <Grid>
+          <Field
+            label="WhatsApp number (with country code)"
+            value={value.whatsappNumber}
+            placeholder="e.g. +20 100 123 4567"
+            onChange={(whatsappNumber) => set({ whatsappNumber })}
+          />
+          <Field
+            label="Contact email"
+            value={value.email}
+            placeholder="hello@strtdigital.site"
+            onChange={(email) => set({ email })}
+          />
+        </Grid>
+        <Field
+          label="Prefilled message"
+          textarea
+          rows={2}
+          value={value.whatsappMessage}
+          placeholder="Hi StrtDigital! I'd love a free consultation."
+          onChange={(whatsappMessage) => set({ whatsappMessage })}
+        />
+      </div>
+
+      {/* Social rail + links */}
+      <div className="space-y-3 rounded-xl border border-line bg-white p-4">
+        <h3 className="text-sm font-semibold text-navy">Social links</h3>
+        <Toggle
+          label="Show the floating side rail"
+          hint="Vertical icons pinned to the screen edge across the site."
+          checked={value.railEnabled}
+          onChange={(railEnabled) => set({ railEnabled })}
+        />
+        <p className="text-xs text-slate-500">
+          Leave a URL empty to make that icon scroll to the contact form instead of opening a profile.
+        </p>
+        <ListEditor<SocialLink>
+          items={value.links}
+          onChange={(links) => set({ links })}
+          addLabel="Add social link"
+          makeNew={() => ({
+            id: `s-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+            platform: "Instagram",
+            label: "Instagram",
+            url: "",
+            enabled: true,
+          })}
+          render={(item, update) => (
+            <div className="space-y-3">
+              <Grid>
+                <label className="block">
+                  <span className="mb-1 block text-xs font-medium text-slate-500">Platform</span>
+                  <select
+                    value={item.platform}
+                    onChange={(e) => update({ platform: e.target.value })}
+                    className={inputCls}
+                  >
+                    {SOCIAL_ICON_NAMES.map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <Field label="Label" value={item.label} onChange={(v) => update({ label: v })} />
+              </Grid>
+              <Field
+                label="URL"
+                value={item.url}
+                placeholder="https://instagram.com/strtdigital"
+                onChange={(v) => update({ url: v })}
+              />
+              <Toggle
+                label="Visible"
+                checked={item.enabled}
+                onChange={(enabled) => update({ enabled })}
+              />
+            </div>
+          )}
+        />
+      </div>
+    </div>
+  );
+}
+
 function CustomEditor({ value, onChange }: { value: CustomContent; onChange: (v: CustomContent) => void }) {
   const set = (patch: Partial<CustomContent>) => onChange({ ...value, ...patch });
   return (
@@ -433,13 +745,29 @@ const SECTION_ORDER: SiteContentKey[] = [
   "hero",
   "services",
   "whyUs",
-  "portfolio",
+  "templates",
   "process",
   "testimonials",
   "faqs",
   "cta",
+  "social",
   "custom",
 ];
+
+// Icon + one-line description for each section, shown in the nav rail and panel header.
+const SECTION_META: Record<SiteContentKey, { icon: ComponentType<{ className?: string }>; description: string }> = {
+  hero: { icon: Sparkles, description: "The headline, intro, and call-to-action at the very top of the page." },
+  services: { icon: LayoutGrid, description: "The grid of services you offer, each with an icon and blurb." },
+  whyUs: { icon: Award, description: "Your differentiators and the standout stat that builds trust." },
+  portfolio: { icon: Images, description: "Case-study cards (legacy section — hidden from the live site)." },
+  templates: { icon: LayoutTemplate, description: "Industry template categories and the templates inside each." },
+  process: { icon: ListChecks, description: "The step-by-step of how you work with clients." },
+  testimonials: { icon: Quote, description: "Client quotes, names, and star ratings." },
+  faqs: { icon: HelpCircle, description: "Frequently asked questions and their answers." },
+  cta: { icon: Mail, description: "The closing contact band and its lead-capture form copy." },
+  social: { icon: Share2, description: "WhatsApp, email, and the floating social link rail." },
+  custom: { icon: Puzzle, description: "Your own extra labelled cards, shown near the bottom of the page." },
+};
 
 export function SiteContentEditor() {
   const { content, loading, saveSection } = useSiteContent();
@@ -491,6 +819,8 @@ export function SiteContentEditor() {
         return <WhyUsEditor value={draft as WhyUsContent} onChange={setDraft} />;
       case "portfolio":
         return <PortfolioEditor value={draft as PortfolioContent} onChange={setDraft} />;
+      case "templates":
+        return <TemplatesEditor value={draft as TemplatesContent} onChange={setDraft} />;
       case "process":
         return <ProcessEditor value={draft as ProcessContent} onChange={setDraft} />;
       case "testimonials":
@@ -499,10 +829,16 @@ export function SiteContentEditor() {
         return <FaqEditor value={draft as FaqContent} onChange={setDraft} />;
       case "cta":
         return <CtaEditor value={draft as CtaContent} onChange={setDraft} />;
+      case "social":
+        return <SocialEditor value={draft as SocialContent} onChange={setDraft} />;
       case "custom":
         return <CustomEditor value={draft as CustomContent} onChange={setDraft} />;
     }
   };
+
+  const dirty = JSON.stringify(draft) !== JSON.stringify(source);
+  const meta = SECTION_META[section];
+  const SectionIcon = meta.icon;
 
   return (
     <div>
@@ -511,12 +847,17 @@ export function SiteContentEditor() {
         subtitle="Edit the public website. Changes publish to all visitors."
         actions={
           <>
+            {dirty && status !== "saving" && (
+              <span className="hidden items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 sm:inline-flex">
+                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" /> Unsaved changes
+              </span>
+            )}
             <a href="#/" target="_blank" rel="noopener noreferrer">
               <Button variant="outline" size="sm" icon={ExternalLink}>
                 View site
               </Button>
             </a>
-            <Button size="sm" onClick={save} disabled={status === "saving"}>
+            <Button size="sm" onClick={save} disabled={status === "saving" || !dirty}>
               {status === "saving" ? "Saving…" : status === "saved" ? "Saved ✓" : "Save changes"}
             </Button>
           </>
@@ -532,30 +873,56 @@ export function SiteContentEditor() {
         </p>
       )}
 
-      {/* section tabs */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        {SECTION_ORDER.map((k) => (
-          <button
-            key={k}
-            onClick={() => setSection(k)}
-            className={cn(
-              "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
-              section === k
-                ? "bg-brand-gradient text-white shadow-card"
-                : "border border-line text-slate-600 hover:border-teal hover:text-teal",
-            )}
-          >
-            {SECTION_LABELS[k]}
-          </button>
-        ))}
-      </div>
+      <div className="grid gap-6 lg:grid-cols-[260px_1fr] lg:items-start">
+        {/* section nav rail */}
+        <nav className="rounded-2xl border border-line bg-white p-2 lg:sticky lg:top-20">
+          {SECTION_ORDER.map((k) => {
+            const Icon = SECTION_META[k].icon;
+            const active = section === k;
+            return (
+              <button
+                key={k}
+                onClick={() => setSection(k)}
+                aria-current={active ? "true" : undefined}
+                className={cn(
+                  "mb-0.5 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-colors",
+                  active
+                    ? "bg-brand-gradient text-white shadow-card"
+                    : "text-slate-600 hover:bg-surface hover:text-navy",
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid h-8 w-8 shrink-0 place-items-center rounded-lg",
+                    active ? "bg-white/20 text-white" : "bg-surface text-teal-dark",
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                </span>
+                {SECTION_LABELS[k]}
+              </button>
+            );
+          })}
+        </nav>
 
-      <div className="rounded-2xl border border-line bg-surface p-5">
-        {loading ? (
-          <p className="text-sm text-slate-500">Loading…</p>
-        ) : (
-          renderEditor()
-        )}
+        {/* editor panel */}
+        <div className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+          <header className="mb-5 flex items-start gap-3 border-b border-line pb-4">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-gradient-soft text-teal-dark">
+              <SectionIcon className="h-5 w-5" />
+            </span>
+            <div>
+              <h2 className="font-display text-xl font-bold text-navy">{SECTION_LABELS[section]}</h2>
+              <p className="mt-0.5 text-sm text-slate-500">{meta.description}</p>
+            </div>
+          </header>
+
+          {loading ? (
+            <p className="text-sm text-slate-500">Loading…</p>
+          ) : (
+            renderEditor()
+          )}
+        </div>
       </div>
     </div>
   );

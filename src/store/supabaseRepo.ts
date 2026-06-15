@@ -138,6 +138,35 @@ export async function deleteLead(id: string): Promise<void> {
   if (error) throw error;
 }
 
+// Public website contact form → a new "Website" lead. Runs as the anon role, which
+// RLS restricts to brand-new, unowned, zero-value Website leads only. The new lead
+// shows up in the admin Leads list on next load.
+export async function submitContactLead(input: {
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  message?: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const now = new Date().toISOString();
+  const { error } = await supabase.from("leads").insert({
+    name: input.name.trim(),
+    email: input.email.trim(),
+    phone: (input.phone ?? "").trim(),
+    company: (input.company ?? "").trim(),
+    source: "Website",
+    stage: "new",
+    value: 0,
+    notes: (input.message ?? "").trim(),
+    activity: [
+      { id: crypto.randomUUID(), type: "created", text: "Submitted via website contact form", at: now },
+    ],
+    stage_history: [{ stage: "new", at: now }],
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
 // ── expenses ─────────────────────────────────────────────────────────────────
 export async function upsertExpense(expense: Expense, isNew: boolean): Promise<void> {
   const payload: Row = {
@@ -234,6 +263,16 @@ export async function signedReceiptUrl(path: string, expiresIn = 120): Promise<s
 
 export async function deleteReceipt(path: string): Promise<void> {
   await supabase.storage.from("receipts").remove([path]);
+}
+
+// ── site imagery (public bucket; e.g. template screenshots) ──────────────────
+export async function uploadSiteImage(file: File): Promise<string> {
+  const ext = file.name.split(".").pop() || "png";
+  const path = `templates/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from("site-images").upload(path, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from("site-images").getPublicUrl(path);
+  return data.publicUrl;
 }
 
 // ── avatar storage (public bucket) ───────────────────────────────────────────

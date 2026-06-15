@@ -9,7 +9,7 @@ export function AdminLayout() {
   const { loading } = useAppData();
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="admin-shell min-h-screen bg-surface transition-colors duration-300">
       <SidebarNav open={menuOpen} onClose={() => setMenuOpen(false)} />
       <div className="lg:pl-64">
         <Topbar onMenu={() => setMenuOpen(true)} />

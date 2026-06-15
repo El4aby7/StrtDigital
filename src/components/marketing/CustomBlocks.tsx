@@ -9,19 +9,19 @@ export function CustomBlocks() {
   if (fields.length === 0) return null;
 
   return (
-    <section className="bg-surface py-20 md:py-28">
+    <section className="bg-surface py-20 md:py-28 dark:bg-darksurface">
       <div className="container-page">
         {custom.heading.trim() && (
           <Reveal className="mx-auto mb-12 max-w-2xl text-center">
-            <h2 className="font-display text-4xl font-bold text-navy">{custom.heading}</h2>
+            <h2 className="font-display text-4xl font-bold text-navy dark:text-white">{custom.heading}</h2>
           </Reveal>
         )}
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {fields.map((f, i) => (
             <Reveal key={f.id} delay={i * 70}>
-              <div className="h-full rounded-2xl border border-line bg-white p-6 shadow-card">
+              <div className="h-full rounded-2xl border border-line bg-white p-6 shadow-card dark:border-white/10 dark:bg-darkcard">
                 <p className="text-sm font-semibold uppercase tracking-wide text-teal">{f.label}</p>
-                <p className="mt-2 whitespace-pre-line text-slate-700">{f.value}</p>
+                <p className="mt-2 whitespace-pre-line text-slate-700 dark:text-slate-300">{f.value}</p>
               </div>
             </Reveal>
           ))}

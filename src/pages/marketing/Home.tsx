@@ -1,7 +1,7 @@
 import { Hero } from "../../components/marketing/Hero";
 import { Services } from "../../components/marketing/Services";
 import { WhyUs } from "../../components/marketing/WhyUs";
-import { PortfolioCarousel } from "../../components/marketing/PortfolioCarousel";
+import { Templates } from "../../components/marketing/Templates";
 import { Process } from "../../components/marketing/Process";
 import { Testimonials } from "../../components/marketing/Testimonials";
 import { FAQ } from "../../components/marketing/FAQ";
@@ -14,7 +14,7 @@ export function Home() {
       <Hero />
       <Services />
       <WhyUs />
-      <PortfolioCarousel />
+      <Templates />
       <Process />
       <Testimonials />
       <CustomBlocks />

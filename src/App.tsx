@@ -3,9 +3,11 @@ import { HashRouter, Routes, Route, Navigate, useNavigate } from "react-router-d
 import { AuthProvider, useAuth } from "./store/AuthContext";
 import { AppDataProvider } from "./store/AppDataProvider";
 import { SiteContentProvider } from "./store/SiteContentProvider";
+import { ThemeProvider } from "./store/ThemeProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { MarketingLayout } from "./components/layout/MarketingLayout";
 import { Home } from "./pages/marketing/Home";
+import { TemplatePreview } from "./pages/marketing/TemplatePreview";
 
 // Admin area (incl. recharts) is split out so the public marketing landing
 // stays lightweight on first load.
@@ -60,6 +62,7 @@ export function App() {
     <AuthProvider>
       <AppDataProvider>
         <SiteContentProvider>
+        <ThemeProvider>
         <HashRouter>
           <RecoveryRedirect />
           <Suspense fallback={<AdminFallback />}>
@@ -68,6 +71,9 @@ export function App() {
               <Route element={<MarketingLayout />}>
                 <Route index element={<Home />} />
               </Route>
+
+              {/* Full-screen template walkthrough */}
+              <Route path="/templates/:id" element={<TemplatePreview />} />
 
               {/* Auth gate */}
               <Route path="/admin/login" element={<Login />} />
@@ -97,6 +103,7 @@ export function App() {
             </Routes>
           </Suspense>
         </HashRouter>
+        </ThemeProvider>
         </SiteContentProvider>
       </AppDataProvider>
     </AuthProvider>

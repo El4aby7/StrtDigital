@@ -27,21 +27,21 @@ export function PortfolioCarousel() {
             <span className="text-sm font-semibold uppercase tracking-wide text-teal">
               {portfolio.eyebrow}
             </span>
-            <h2 className="mt-3 font-display text-4xl font-bold text-navy">
+            <h2 className="mt-3 font-display text-4xl font-bold text-navy dark:text-white">
               {portfolio.title}
             </h2>
           </div>
           <div className="flex gap-2">
             <button
               onClick={() => scrollTo(active - 1)}
-              className="grid h-11 w-11 place-items-center rounded-full border border-line text-navy transition-colors hover:border-teal hover:text-teal"
+              className="grid h-11 w-11 place-items-center rounded-full border border-line text-navy transition-colors hover:border-teal hover:text-teal dark:border-white/10 dark:text-white"
               aria-label="Previous"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => scrollTo(active + 1)}
-              className="grid h-11 w-11 place-items-center rounded-full border border-line text-navy transition-colors hover:border-teal hover:text-teal"
+              className="grid h-11 w-11 place-items-center rounded-full border border-line text-navy transition-colors hover:border-teal hover:text-teal dark:border-white/10 dark:text-white"
               aria-label="Next"
             >
               <ArrowRight className="h-5 w-5" />
@@ -77,7 +77,7 @@ export function PortfolioCarousel() {
                   <p className="text-sm font-semibold text-teal">{c.result}</p>
                 </div>
               </div>
-              <p className="mt-4 text-sm leading-relaxed text-slate-600">{c.blurb}</p>
+              <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{c.blurb}</p>
             </article>
           ))}
         </div>
@@ -90,7 +90,7 @@ export function PortfolioCarousel() {
               aria-label={`Go to slide ${i + 1}`}
               className={cn(
                 "h-2 rounded-full transition-all",
-                i === active ? "w-8 bg-teal" : "w-2 bg-line hover:bg-slate-300",
+                i === active ? "w-8 bg-teal" : "w-2 bg-line hover:bg-slate-300 dark:bg-white/15",
               )}
             />
           ))}

@@ -8,7 +8,12 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(threshold = 0.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (typeof IntersectionObserver === "undefined") {
+    // Show immediately (no fade-up) when the user prefers reduced motion, or when
+    // IntersectionObserver isn't available.
+    const reduceMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion || typeof IntersectionObserver === "undefined") {
       setVisible(true);
       return;
     }

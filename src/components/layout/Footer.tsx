@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
-import { Linkedin, Twitter, Instagram, Facebook, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { Logo } from "../ui/Logo";
 import { scrollToId } from "../../lib/scrollToId";
+import { useSiteContent } from "../../store/SiteContentProvider";
+import { resolveSocialIcon } from "../../data/siteContent";
 
 // Each footer link maps to the on-page section it should scroll to. This is a
 // single-page marketing site, so every link points at one of the real section ids
@@ -22,7 +24,7 @@ const columns: { title: string; links: { label: string; target: string }[] }[] =
     title: "Company",
     links: [
       { label: "About", target: "why" },
-      { label: "Work", target: "work" },
+      { label: "Templates", target: "templates" },
       { label: "Process", target: "process" },
       { label: "Contact", target: "contact" },
     ],
@@ -30,23 +32,18 @@ const columns: { title: string; links: { label: string; target: string }[] }[] =
   {
     title: "Resources",
     links: [
-      { label: "Case Studies", target: "work" },
+      { label: "Templates", target: "templates" },
       { label: "FAQ", target: "faq" },
       { label: "Get a quote", target: "contact" },
     ],
   },
 ];
 
-// Social profiles. Replace these with the real StrtDigital handles when available;
-// until then they scroll to the contact form rather than dead-ending on "#".
-const socials: { Icon: typeof Linkedin; label: string; href?: string }[] = [
-  { Icon: Linkedin, label: "LinkedIn" },
-  { Icon: Twitter, label: "X / Twitter" },
-  { Icon: Instagram, label: "Instagram" },
-  { Icon: Facebook, label: "Facebook" },
-];
-
 export function Footer() {
+  const { social } = useSiteContent().content;
+  const socials = (social?.links ?? []).filter((l) => l.enabled);
+  const email = social?.email?.trim() || "strtdigital.site@gmail.com";
+
   return (
     <footer className="bg-navy text-white">
       <div className="container-page grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
@@ -56,23 +53,29 @@ export function Footer() {
             For All Digital Solutions. We design and build premium digital
             experiences that start your growth.
           </p>
-          <div className="mt-5 flex gap-3">
-            {socials.map(({ Icon, label, href }) => (
-              <a
-                key={label}
-                href={href ?? "#contact"}
-                target={href ? "_blank" : undefined}
-                rel={href ? "noopener noreferrer" : undefined}
-                onClick={
-                  href ? undefined : (e) => { e.preventDefault(); scrollToId("contact"); }
-                }
-                className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-teal hover:text-white"
-                aria-label={label}
-              >
-                <Icon className="h-4 w-4" />
-              </a>
-            ))}
-          </div>
+          {socials.length > 0 && (
+            <div className="mt-5 flex gap-3">
+              {socials.map((s) => {
+                const Icon = resolveSocialIcon(s.platform);
+                const external = s.url.trim().length > 0;
+                return (
+                  <a
+                    key={s.id}
+                    href={external ? s.url : "#contact"}
+                    target={external ? "_blank" : undefined}
+                    rel={external ? "noopener noreferrer" : undefined}
+                    onClick={
+                      external ? undefined : (e) => { e.preventDefault(); scrollToId("contact"); }
+                    }
+                    className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-teal hover:text-white"
+                    aria-label={s.label}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {columns.map((col) => (
@@ -100,8 +103,8 @@ export function Footer() {
           <p>© {new Date().getFullYear()} StrtDigital. All rights reserved.</p>
           <div className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
-            <a href="mailto:strtdigital.site@gmail.com" className="hover:text-teal">
-              strtdigital.site@gmail.com
+            <a href={`mailto:${email}`} className="hover:text-teal">
+              {email}
             </a>
           </div>
           <Link to="/admin/login" className="hover:text-teal">

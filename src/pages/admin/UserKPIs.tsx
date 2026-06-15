@@ -33,16 +33,16 @@ function Bar({ label, value, target, format }: { label: string; value: number; t
 function UserCard({ k, onEdit, canEdit }: { k: UserKpis; onEdit: () => void; canEdit: boolean }) {
   const revenuePct = k.user.targets.revenue ? k.revenue / k.user.targets.revenue : 0;
   return (
-    <Card>
+    <Card className="flex h-full flex-col">
       <div className="flex items-center gap-3">
-        <span className="grid h-11 w-11 place-items-center rounded-full text-sm font-bold text-white" style={{ background: k.user.avatar_color }}>
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-sm font-bold text-white" style={{ background: k.user.avatar_color }}>
           {k.user.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}
         </span>
-        <div>
-          <p className="font-semibold text-navy">{k.user.name}</p>
-          <p className="text-xs text-slate-500">{k.user.role}</p>
+        <div className="min-w-0">
+          <p className="truncate font-semibold text-navy">{k.user.name}</p>
+          <p className="truncate text-xs text-slate-500">{k.user.role}</p>
         </div>
-        <div className="ml-auto">
+        <div className="ml-auto shrink-0">
           <ProgressRing
             value={revenuePct}
             size={64}
