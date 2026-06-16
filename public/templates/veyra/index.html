@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VEYRA — Considered clothing for the modern wardrobe</title>
+  <meta name="description" content="VEYRA is an original fashion label offering elevated everyday essentials, outerwear, knitwear and accessories. Designed in studio, made to last.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2314110f'/%3E%3Ctext x='16' y='22' font-family='serif' font-size='16' fill='%23f7f4ef' text-anchor='middle'%3EV%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero__bg" id="hero-bg"></div>
+      <div class="container hero__inner">
+        <span class="eyebrow hero__eyebrow" data-reveal>Autumn / Winter 2026</span>
+        <h1 data-reveal class="d1">The art of<br>everyday dressing.</h1>
+        <p data-reveal class="d2">Elevated essentials, considered outerwear and accessories — designed in our studio and built to outlast the season.</p>
+        <div class="cluster" data-reveal>
+          <a class="btn btn--light btn--lg" href="shop.html">Shop the collection</a>
+          <a class="btn btn--ghost btn--lg" style="--ink:#fff;color:#fff;border-color:rgba(255,255,255,.6)" href="shop.html?category=women">Women</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>New season knitwear</span><span>Free shipping over $150</span><span>Made to last</span><span>Responsibly sourced</span>
+        <span>New season knitwear</span><span>Free shipping over $150</span><span>Made to last</span><span>Responsibly sourced</span>
+      </div>
+    </div>
+
+    <!-- USP STRIP -->
+    <section class="section section--tight">
+      <div class="container">
+        <div class="usp" id="usp"></div>
+      </div>
+    </section>
+
+    <!-- FEATURED COLLECTIONS -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow" data-reveal>Curated edits</span>
+            <h2 data-reveal class="d1">Shop by collection</h2>
+          </div>
+          <a class="link-underline" href="shop.html" data-reveal>View all →</a>
+        </div>
+        <div class="collections" id="collections"></div>
+      </div>
+    </section>
+
+    <!-- PROMO BANNER -->
+    <section class="section section--tight">
+      <div class="container">
+        <div class="promo">
+          <div class="promo__bg" id="promo-bg"></div>
+          <div class="promo__content">
+            <span class="eyebrow" style="color:var(--gold)" data-reveal>Limited time</span>
+            <h2 data-reveal class="d1">Mid-season sale<br>up to 30% off</h2>
+            <p data-reveal class="d2" style="color:rgba(255,255,255,.85)">Selected outerwear, denim and accessories. While stock lasts.</p>
+            <a class="btn btn--light btn--lg" style="margin-top:1.5rem" href="shop.html?onsale=1" data-reveal>Shop sale</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRENDING -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow" data-reveal>Most loved</span>
+            <h2 data-reveal class="d1">Trending now</h2>
+          </div>
+          <a class="link-underline" href="shop.html?sort=popular" data-reveal>See all →</a>
+        </div>
+        <div class="product-grid" id="trending"></div>
+      </div>
+    </section>
+
+    <!-- SPLIT FEATURE -->
+    <section class="section section--tight">
+      <div class="container">
+        <div class="split">
+          <div class="collection" style="aspect-ratio:16/11">
+            <div id="split-bg-1" style="position:absolute;inset:0"></div>
+            <div class="collection__label">
+              <span class="eyebrow" style="color:var(--gold)">New In</span>
+              <h3>Winter Knitwear</h3>
+              <a class="link-underline" style="color:#fff" href="shop.html?q=knit">Discover →</a>
+            </div>
+          </div>
+          <div class="collection" style="aspect-ratio:16/11">
+            <div id="split-bg-2" style="position:absolute;inset:0"></div>
+            <div class="collection__label">
+              <span class="eyebrow" style="color:var(--gold)">Essentials</span>
+              <h3>The Tee Project</h3>
+              <a class="link-underline" style="color:#fff" href="shop.html?q=tee">Discover →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEW ARRIVALS -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow" data-reveal>Just landed</span>
+            <h2 data-reveal class="d1">New arrivals</h2>
+          </div>
+          <a class="link-underline" href="shop.html?sort=new" data-reveal>Shop new in →</a>
+        </div>
+        <div class="product-grid" id="new-arrivals"></div>
+      </div>
+    </section>
+
+    <!-- NEWSLETTER -->
+    <section class="section">
+      <div class="container">
+        <div class="newsletter" data-reveal>
+          <span class="eyebrow" style="color:var(--gold)">Join the list</span>
+          <h2>Get 10% off your first order</h2>
+          <p class="muted" style="color:rgba(247,244,239,.7);max-width:40ch;margin-inline:auto">Be first to shop new collections, restocks and members-only offers.</p>
+          <form data-newsletter novalidate>
+            <input type="email" required placeholder="Your email address" aria-label="Email address">
+            <button class="btn btn--accent" type="submit">Subscribe</button>
+          </form>
+          <p class="form-msg" role="status"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/components.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

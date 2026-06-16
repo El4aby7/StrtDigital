@@ -23,6 +23,7 @@ import {
   Car,
   UtensilsCrossed,
   Sofa,
+  Shirt,
   LayoutTemplate,
   Building2,
   Linkedin,
@@ -56,6 +57,7 @@ export const ICONS: Record<string, LucideIcon> = {
   Car,
   UtensilsCrossed,
   Sofa,
+  Shirt,
   LayoutTemplate,
   Building2,
 };
@@ -348,6 +350,14 @@ export const defaultContent: SiteContent = {
         items: [
           { id: "furn-1", name: "Maison", tag: "eCommerce", blurb: "A warm furniture storefront with room-by-room shopping.", cover: "linear-gradient(135deg,#0D1B2A,#2EE6C5)", url: "" },
           { id: "furn-2", name: "Oak & Co", tag: "Catalogue", blurb: "A minimal catalogue showcasing craftsmanship and finishes.", cover: "linear-gradient(135deg,#1B3147,#14B8C4)", url: "" },
+        ],
+      },
+      {
+        id: "fashion",
+        name: "Fashion",
+        icon: "Shirt",
+        items: [
+          { id: "fashion-veyra", name: "VEYRA", tag: "Clothing eCommerce", blurb: "A premium fashion storefront — editorial homepage, filterable catalogue, product pages with size/colour variants, cart, checkout, wishlist and accounts. Fully interactive live demo.", cover: "linear-gradient(135deg,#14110f,#b1553a)", url: "templates/veyra/index.html" },
         ],
       },
     ],
