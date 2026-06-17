@@ -20,6 +20,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 * { margin: 0; }
 html { scroll-behavior: smooth; }
+[hidden] { display: none !important; } /* keep the hidden attribute authoritative over class display */
 body {
   font-family: var(--font-body); color: var(--ink); background: var(--paper);
   line-height: 1.6; -webkit-font-smoothing: antialiased;
