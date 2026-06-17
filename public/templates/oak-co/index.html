@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!-- Oak & Co — furniture template: an editorial craftsmanship CATALOGUE (no cart) — filter by wood & finish, expand a materials accordion, and send a made-to-order enquiry. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Oak &amp; Co — Handmade timber furniture</title>
+  <meta name="description" content="Oak & Co is a small workshop making heirloom timber furniture to order. Browse the catalogue, explore our woods and finishes, and enquire.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231f2a1c'/%3E%3Cpath d='M16 6c5 4 5 16 0 20-5-4-5-16 0-20z' fill='none' stroke='%23c6a15b' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#catalogue">Skip to catalogue</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <div class="hero__bg" id="hero-bg"></div>
+      <div class="hero__scrim"></div>
+      <div class="container hero__inner">
+        <span class="eyebrow" data-reveal>Workshop est. 1998</span>
+        <h1 class="display" data-reveal>Timber, shaped<br>by patient hands.</h1>
+        <p class="lede" data-reveal>A small studio making heirloom furniture to order. Solid hardwoods, traditional joinery, finishes that age beautifully.</p>
+        <div class="hero__cta" data-reveal>
+          <a class="btn btn--accent btn--lg" href="#catalogue">Browse the catalogue</a>
+          <a class="btn btn--line btn--lg" href="#materials">Our woods &amp; finishes</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURED PIECE -->
+    <section class="section feature" id="feature">
+      <div class="container feature__grid">
+        <div class="feature__art" data-reveal><div id="feature-img"></div><span class="feature__tag">Piece of the month</span></div>
+        <div data-reveal>
+          <span class="eyebrow">The Halling sideboard</span>
+          <h2 class="h2">Forty hours, one piece of furniture</h2>
+          <p>Hand-cut dovetails, book-matched grain, and a hand-rubbed oil finish. Each Halling is numbered and signed by the maker who built it.</p>
+          <ul class="feature__list" id="feature-list"></ul>
+          <button class="btn btn--accent" data-enquire="The Halling sideboard">Enquire about this piece</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CATALOGUE -->
+    <section class="section catalogue" id="catalogue">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" data-reveal>The catalogue</span>
+          <h2 class="h2" data-reveal>Made to order, never mass-made</h2>
+          <p class="muted" data-reveal>Every piece is built when you order it. Filter by wood or type — prices shown are starting points.</p>
+        </div>
+        <div class="filters" data-reveal>
+          <div class="filters__row" id="wood-filters"><span class="filters__lbl">Wood</span></div>
+          <div class="filters__row" id="cat-filters"><span class="filters__lbl">Type</span></div>
+        </div>
+        <div class="cat-grid" id="cat-grid"></div>
+        <p class="empty" id="empty" hidden>No pieces match — <button class="link-btn" id="reset">reset filters</button>.</p>
+      </div>
+    </section>
+
+    <!-- MATERIALS ACCORDION -->
+    <section class="section materials" id="materials">
+      <div class="container materials__grid">
+        <div data-reveal>
+          <span class="eyebrow">Woods &amp; finishes</span>
+          <h2 class="h2 h2--light">Know your timber</h2>
+          <p class="lede lede--light">We work in four hardwoods, each with its own character. Tap to learn how they wear, and the finishes we recommend.</p>
+        </div>
+        <div class="accordion" id="accordion" data-reveal></div>
+      </div>
+    </section>
+
+    <!-- ENQUIRY -->
+    <section class="section enquiry" id="enquiry">
+      <div class="container enquiry__grid">
+        <div data-reveal>
+          <span class="eyebrow">Commission a piece</span>
+          <h2 class="h2">Start a conversation</h2>
+          <p class="lede">Tell us what you have in mind. We'll reply within two working days with timber options, a quote and a lead time.</p>
+          <ul class="ticks" id="enquiry-ticks"></ul>
+        </div>
+        <form class="card-form" id="enquiry-form" data-reveal novalidate>
+          <h3>Enquiry</h3>
+          <div class="row">
+            <div class="field"><label for="e-name">Name</label><input id="e-name" name="name" required></div>
+            <div class="field"><label for="e-email">Email</label><input id="e-email" name="email" type="email" required></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="e-piece">Piece of interest</label><input id="e-piece" name="piece" placeholder="e.g. Dining table"></div>
+            <div class="field"><label for="e-wood">Preferred wood</label>
+              <select id="e-wood" name="wood"><option value="">No preference</option></select>
+            </div>
+          </div>
+          <div class="field"><label for="e-msg">Your project</label><textarea id="e-msg" name="message" rows="4" required placeholder="Dimensions, room, timeline, anything that helps…"></textarea></div>
+          <button class="btn btn--accent btn--block" type="submit">Send enquiry</button>
+          <p class="form-msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

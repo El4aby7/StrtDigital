@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!-- ATELIER — fashion template: an editorial LOOKBOOK (distinct from a full store) — full-bleed scrolling looks, shoppable quick-view with size selector + wishlist, and a campaign gallery. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ATELIER — SS26 Lookbook</title>
+  <meta name="description" content="ATELIER Spring/Summer 26 — a shoppable editorial lookbook. Explore the looks, pick your size, and save your favourites.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230f0f0f'/%3E%3Ctext x='16' y='22' font-family='serif' font-size='18' fill='%23f4f1ea' text-anchor='middle'%3EA%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500;6..96,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#lookbook">Skip to lookbook</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <div class="hero__bg" id="hero-bg"></div>
+      <div class="hero__inner container">
+        <p class="hero__season" data-reveal>Spring / Summer 2026</p>
+        <h1 class="hero__title" data-reveal>ATELIER</h1>
+        <p class="hero__sub" data-reveal>The Lightness Edit — tailored volume, raw edges, and colour that moves.</p>
+        <a class="scrolldown" href="#lookbook" data-reveal aria-label="Scroll to lookbook">↓ Explore the looks</a>
+      </div>
+    </section>
+
+    <!-- INTRO -->
+    <section class="section intro">
+      <div class="container">
+        <p class="intro__lead" data-reveal>A wardrobe built for movement. Eighteen pieces, six looks, one idea: <em>clothes that breathe with you.</em></p>
+      </div>
+    </section>
+
+    <!-- LOOKBOOK -->
+    <section id="lookbook">
+      <div class="looks" id="looks"></div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="section gallery" id="gallery">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow" data-reveal>The campaign</span>
+          <h2 class="h2" data-reveal>SS26 in frame</h2>
+        </div>
+      </div>
+      <div class="gallery__strip" id="gallery-strip"></div>
+    </section>
+
+    <!-- NEWSLETTER -->
+    <section class="section news">
+      <div class="container news__inner">
+        <h2 class="h2 h2--light" data-reveal>Be first to the drop</h2>
+        <p data-reveal>SS26 lands in March. Join the list for early access and the full lookbook.</p>
+        <form class="news__form" id="news-form" data-reveal novalidate>
+          <input type="email" id="news-email" placeholder="Email address" aria-label="Email address" required>
+          <button class="btn btn--accent" type="submit">Join</button>
+        </form>
+        <p class="form-msg" id="news-msg" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <!-- LOOK QUICK-VIEW -->
+  <div class="modal" id="look-modal" hidden>
+    <div class="modal__scrim" data-lm-close></div>
+    <div class="modal__panel" role="dialog" aria-modal="true"><button class="modal__close" data-lm-close aria-label="Close">&times;</button><div id="lm-body"></div></div>
+  </div>
+
+  <!-- WISHLIST DRAWER -->
+  <div class="drawer" id="wishlist" hidden>
+    <div class="drawer__scrim" data-wl-close></div>
+    <aside class="drawer__panel" role="dialog" aria-modal="true" aria-label="Wishlist">
+      <header class="drawer__head"><h3>Saved looks</h3><button class="drawer__close" data-wl-close aria-label="Close">&times;</button></header>
+      <div class="drawer__body" id="wl-items"></div>
+      <div class="drawer__empty" id="wl-empty"><p>Nothing saved yet.</p><button class="btn btn--outline btn--sm" data-wl-close>Browse the lookbook</button></div>
+    </aside>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -330,8 +330,8 @@ export const defaultContent: SiteContent = {
         name: "Cars Dealership",
         icon: "Car",
         items: [
-          { id: "cars-1", name: "AutoHub", tag: "Inventory + Leads", blurb: "Searchable vehicle inventory with finance enquiry forms that capture buyers.", cover: "linear-gradient(135deg,#0D1B2A,#14B8C4)", url: "" },
-          { id: "cars-2", name: "DriveLine", tag: "Showroom", blurb: "A full-screen showroom with book-a-test-drive built right in.", cover: "linear-gradient(135deg,#1B3147,#2EE6C5)", url: "" },
+          { id: "cars-1", name: "AutoHub", tag: "Inventory + Leads", blurb: "Searchable, filterable vehicle inventory with quick-view specs and finance enquiry forms that capture buyers. Fully interactive live demo.", cover: "linear-gradient(135deg,#0D1B2A,#14B8C4)", url: "templates/autohub/index.html" },
+          { id: "cars-2", name: "DriveLine", tag: "Showroom", blurb: "An immersive single-vehicle showroom with a live configurator — colour, trim and options update the render and price — plus book-a-test-drive. Live demo.", cover: "linear-gradient(135deg,#0b1622,#2EE6C5)", url: "templates/driveline/index.html" },
         ],
       },
       {
@@ -339,8 +339,8 @@ export const defaultContent: SiteContent = {
         name: "Restaurants",
         icon: "UtensilsCrossed",
         items: [
-          { id: "rest-1", name: "Saffron", tag: "Menu + Reservations", blurb: "An elegant menu, gallery, and table reservations that fill your seats.", cover: "linear-gradient(135deg,#14B8C4,#2EE6C5)", url: "" },
-          { id: "rest-2", name: "Brewworks", tag: "Online Ordering", blurb: "A café template with online ordering and loyalty rewards.", cover: "linear-gradient(135deg,#0E96A0,#2EE6C5)", url: "" },
+          { id: "rest-1", name: "Saffron", tag: "Menu + Reservations", blurb: "An editorial fine-dining site: a tabbed, filterable menu, a gallery lightbox, and table reservations that fill your seats. Live demo.", cover: "linear-gradient(135deg,#241b15,#c2872f)", url: "templates/saffron/index.html" },
+          { id: "rest-2", name: "Brewworks", tag: "Online Ordering", blurb: "A café with online ordering — add-to-cart drawer, running totals, a loyalty-rewards tracker and simulated checkout. Live demo.", cover: "linear-gradient(135deg,#3a2418,#e08a2e)", url: "templates/brewworks/index.html" },
         ],
       },
       {
@@ -348,8 +348,8 @@ export const defaultContent: SiteContent = {
         name: "Furniture",
         icon: "Sofa",
         items: [
-          { id: "furn-1", name: "Maison", tag: "eCommerce", blurb: "A warm furniture storefront with room-by-room shopping.", cover: "linear-gradient(135deg,#0D1B2A,#2EE6C5)", url: "" },
-          { id: "furn-2", name: "Oak & Co", tag: "Catalogue", blurb: "A minimal catalogue showcasing craftsmanship and finishes.", cover: "linear-gradient(135deg,#1B3147,#14B8C4)", url: "" },
+          { id: "furn-1", name: "Maison", tag: "eCommerce", blurb: "A warm furniture storefront with room-by-room shopping, quick-view material/size options and a cart-preview drawer. Live demo.", cover: "linear-gradient(135deg,#2b2722,#c98a5e)", url: "templates/maison/index.html" },
+          { id: "furn-2", name: "Oak & Co", tag: "Catalogue", blurb: "A minimal craftsmanship catalogue — filter by wood and finish, explore a materials accordion, and send made-to-order enquiries. Live demo.", cover: "linear-gradient(135deg,#1f2a1c,#c6a15b)", url: "templates/oak-co/index.html" },
         ],
       },
       {
@@ -358,6 +358,7 @@ export const defaultContent: SiteContent = {
         icon: "Shirt",
         items: [
           { id: "fashion-veyra", name: "VEYRA", tag: "Clothing eCommerce", blurb: "A premium fashion storefront — editorial homepage, filterable catalogue, product pages with size/colour variants, cart, checkout, wishlist and accounts. Fully interactive live demo.", cover: "linear-gradient(135deg,#14110f,#b1553a)", url: "templates/veyra/index.html" },
+          { id: "fashion-atelier", name: "ATELIER", tag: "Lookbook", blurb: "An editorial, shoppable lookbook — full-bleed scrolling looks, a quick-view with per-item size selector, a saved-looks wishlist and a campaign gallery. Live demo.", cover: "linear-gradient(135deg,#0f0f0f,#e9573f)", url: "templates/atelier/index.html" },
         ],
       },
     ],

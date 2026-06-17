@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<!-- Saffron — restaurant template: editorial fine-dining site with a tabbed/filterable menu, gallery lightbox, and a validated table-reservation flow. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Saffron — Modern spice kitchen</title>
+  <meta name="description" content="Saffron is a contemporary spice kitchen. Explore our seasonal menu, browse the gallery, and reserve your table online.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23241b15'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23e0a94a' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23e0a94a'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#menu">Skip to menu</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <div class="hero__bg" id="hero-bg"></div>
+      <div class="hero__scrim"></div>
+      <div class="container hero__inner">
+        <span class="eyebrow" data-reveal>Est. 2014 · Spice kitchen</span>
+        <h1 class="display" data-reveal>Where spice<br>tells a story.</h1>
+        <p class="lede" data-reveal>Seasonal plates built on slow-roasted spice blends, open-fire cooking, and produce from growers we know by name.</p>
+        <div class="hero__cta" data-reveal>
+          <a class="btn btn--accent btn--lg" href="#reserve">Reserve a table</a>
+          <a class="btn btn--outline btn--lg" href="#menu">View the menu</a>
+        </div>
+        <p class="hero__hours" data-reveal>Dinner Tue–Sun · 5:30–11pm &nbsp;·&nbsp; Lunch Fri–Sun · 12–3pm</p>
+      </div>
+    </section>
+
+    <!-- STORY -->
+    <section class="section story" id="story">
+      <div class="container story__grid">
+        <div class="story__art" data-reveal><div id="story-img"></div></div>
+        <div data-reveal>
+          <span class="eyebrow">Our kitchen</span>
+          <h2 class="h2">A modern take on an ancient pantry</h2>
+          <p>We grind our own masalas every morning and cook over open flame. The menu changes with the season, but the philosophy never does: bold spice, honest sourcing, and warm hospitality.</p>
+          <div class="story__stats" id="story-stats"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MENU -->
+    <section class="section menu" id="menu">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" data-reveal>The menu</span>
+          <h2 class="h2" data-reveal>Crafted by course</h2>
+          <p class="muted" data-reveal>Filter by course or dietary preference. Prices include tasting portions.</p>
+        </div>
+        <div class="menu__controls" data-reveal>
+          <div class="tabs" role="tablist" id="course-tabs"></div>
+          <label class="veg-toggle"><input type="checkbox" id="veg-only"><span></span>Vegetarian only</label>
+        </div>
+        <div class="menu__list" id="menu-list"></div>
+        <p class="empty" id="menu-empty" hidden>No vegetarian dishes in this course — try another.</p>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="section gallery" id="gallery">
+      <div class="container">
+        <div class="section-head section-head--center">
+          <span class="eyebrow" data-reveal>The room</span>
+          <h2 class="h2" data-reveal>A feast for the eyes</h2>
+        </div>
+        <div class="gallery__grid" id="gallery-grid"></div>
+      </div>
+    </section>
+
+    <!-- RESERVE -->
+    <section class="section reserve" id="reserve">
+      <div class="container reserve__grid">
+        <div data-reveal>
+          <span class="eyebrow">Reservations</span>
+          <h2 class="h2 h2--light">Book your table</h2>
+          <p class="lede lede--light">Tables for up to 8 online; for larger parties or private dining, give us a call. We hold reservations for 15 minutes.</p>
+          <ul class="reserve__info" id="reserve-info"></ul>
+        </div>
+        <form class="card-form" id="reserve-form" data-reveal novalidate>
+          <h3>Find a table</h3>
+          <div class="row">
+            <div class="field"><label for="r-date">Date</label><input id="r-date" name="date" type="date" required></div>
+            <div class="field"><label for="r-time">Time</label>
+              <select id="r-time" name="time" required><option value="">Select</option><option>5:30 PM</option><option>6:30 PM</option><option>7:30 PM</option><option>8:30 PM</option><option>9:30 PM</option></select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="r-party">Party size</label>
+              <select id="r-party" name="party" required><option value="">Select</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select>
+            </div>
+            <div class="field"><label for="r-phone">Phone</label><input id="r-phone" name="phone" type="tel" required></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="r-name">Name</label><input id="r-name" name="name" required></div>
+            <div class="field"><label for="r-email">Email</label><input id="r-email" name="email" type="email" required></div>
+          </div>
+          <div class="field"><label for="r-notes">Special requests</label><textarea id="r-notes" name="notes" rows="2" placeholder="Allergies, occasion, seating…"></textarea></div>
+          <button class="btn btn--accent btn--block" type="submit">Request reservation</button>
+          <p class="form-msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" hidden>
+    <button class="lightbox__close" data-lb-close aria-label="Close">&times;</button>
+    <button class="lightbox__nav lightbox__prev" data-lb-prev aria-label="Previous">&#8249;</button>
+    <figure class="lightbox__fig"><img id="lb-img" alt=""><figcaption id="lb-cap"></figcaption></figure>
+    <button class="lightbox__nav lightbox__next" data-lb-next aria-label="Next">&#8250;</button>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

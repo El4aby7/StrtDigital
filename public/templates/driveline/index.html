@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<!-- DriveLine — car-dealership template: immersive single-vehicle showroom with a live configurator (colour/trim/options update render + price) and a book-a-test-drive flow. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DriveLine — The DL-One Showroom</title>
+  <meta name="description" content="Configure your DL-One: choose colour, trim and options, watch the price update live, and book a test drive.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231B3147'/%3E%3Cpath d='M5 18h22' stroke='%232EE6C5' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='12' r='4' fill='%232EE6C5'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#configurator">Skip to configurator</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <!-- HERO SHOWROOM -->
+    <section class="showroom" id="showroom">
+      <div class="showroom__stage">
+        <div class="showroom__glow" id="stage-glow"></div>
+        <img id="hero-car" alt="DL-One configured render" class="showroom__car">
+        <div class="showroom__angles" id="angle-dots"></div>
+      </div>
+      <div class="showroom__intro container">
+        <span class="eyebrow" data-reveal>All-electric · 0–60 in 3.1s</span>
+        <h1 class="display" data-reveal>The DL-One</h1>
+        <p class="lede" data-reveal>One platform, three personalities. Build yours below — every change updates the car and the price in real time.</p>
+        <div class="showroom__price" data-reveal>
+          <span>From</span><strong id="hero-price">$48,900</strong>
+        </div>
+        <a class="btn btn--accent btn--lg" href="#configurator" data-reveal>Start building</a>
+      </div>
+    </section>
+
+    <!-- SPECS MARQUEE -->
+    <div class="ticker" aria-hidden="true"><div class="ticker__track" id="ticker"></div></div>
+
+    <!-- CONFIGURATOR -->
+    <section class="section" id="configurator">
+      <div class="container">
+        <div class="config">
+          <!-- live render -->
+          <div class="config__view">
+            <div class="config__render"><div class="config__glow" id="cfg-glow"></div><img id="cfg-car" alt="Your DL-One"></div>
+            <div class="config__swatches" id="swatches"></div>
+            <p class="config__paintname">Paint: <strong id="paint-name">Glacier White</strong></p>
+          </div>
+
+          <!-- options panel -->
+          <div class="config__panel">
+            <h2 class="h2">Build your DL-One</h2>
+
+            <div class="opt-block">
+              <h3>Choose your trim</h3>
+              <div class="trims" id="trims"></div>
+            </div>
+
+            <div class="opt-block">
+              <h3>Add options</h3>
+              <div class="addons" id="addons"></div>
+            </div>
+
+            <div class="summary">
+              <div class="summary__row"><span>Base (<em id="sum-trim">Standard</em>)</span><span id="sum-base">$48,900</span></div>
+              <div class="summary__row"><span>Options</span><span id="sum-opts">$0</span></div>
+              <div class="summary__row summary__row--total"><span>Estimated total</span><span id="sum-total">$48,900</span></div>
+              <p class="summary__finance">≈ <strong id="sum-month">$815</strong>/mo · 60 months · est.</p>
+              <button class="btn btn--accent btn--block btn--lg" id="reserve-btn">Reserve this build</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPEC TABS -->
+    <section class="section section--dark" id="specs">
+      <div class="container">
+        <span class="eyebrow" data-reveal>Engineering</span>
+        <h2 class="h2 h2--light" data-reveal>Numbers that move you</h2>
+        <div class="tabs" data-reveal>
+          <div class="tabs__nav" role="tablist" id="tab-nav"></div>
+          <div class="tabs__panels" id="tab-panels"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEST DRIVE -->
+    <section class="section drive" id="test-drive">
+      <div class="container drive__grid">
+        <div data-reveal>
+          <span class="eyebrow">Experience it</span>
+          <h2 class="h2">Book a test drive</h2>
+          <p class="lede">Bring your configured build to life. Pick a day and time — we'll have your DL-One charged and waiting.</p>
+          <div class="drive__build" id="drive-build"></div>
+        </div>
+        <form class="card-form" id="drive-form" data-reveal novalidate>
+          <h3>Reserve your slot</h3>
+          <div class="field"><label for="d-name">Name</label><input id="d-name" name="name" required></div>
+          <div class="row">
+            <div class="field"><label for="d-email">Email</label><input id="d-email" name="email" type="email" required></div>
+            <div class="field"><label for="d-phone">Phone</label><input id="d-phone" name="phone" type="tel" required></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="d-date">Preferred date</label><input id="d-date" name="date" type="date" required></div>
+            <div class="field"><label for="d-time">Time</label>
+              <select id="d-time" name="time" required><option value="">Select</option><option>Morning (9–12)</option><option>Afternoon (12–4)</option><option>Evening (4–7)</option></select>
+            </div>
+          </div>
+          <button class="btn btn--accent btn--block" type="submit">Confirm test drive</button>
+          <p class="form-msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

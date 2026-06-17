@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<!-- Brewworks — restaurant/café template: online ordering with an add-to-cart drawer, running totals, a loyalty-rewards tracker, and a simulated checkout. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brewworks — Coffee, baked fresh daily</title>
+  <meta name="description" content="Order Brewworks coffee, brunch and bakery online for pickup. Earn rewards on every cup.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%233a2418'/%3E%3Cpath d='M8 12h13v6a5 5 0 0 1-5 5h-3a5 5 0 0 1-5-5z' fill='none' stroke='%23f0a14a' stroke-width='2'/%3E%3Cpath d='M21 14h2a2 2 0 0 1 0 4h-2' fill='none' stroke='%23f0a14a' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#order">Skip to ordering</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" id="home">
+      <div class="container hero__grid">
+        <div class="hero__copy">
+          <span class="eyebrow" data-reveal>Pickup in 10 minutes</span>
+          <h1 class="display" data-reveal>Your daily<br>brew, sorted.</h1>
+          <p class="lede" data-reveal>Small-batch roasts, all-day brunch and bakery made from scratch. Order ahead and skip the queue.</p>
+          <div class="hero__cta" data-reveal>
+            <a class="btn btn--accent btn--lg" href="#order">Order now</a>
+            <a class="btn btn--ghost btn--lg" href="#rewards">Join rewards</a>
+          </div>
+          <div class="hero__chips" data-reveal id="hero-chips"></div>
+        </div>
+        <div class="hero__art" data-reveal><div id="hero-img"></div><div class="hero__badge">★ 4.9 · 2,300 cups today</div></div>
+      </div>
+    </section>
+
+    <!-- ORDER -->
+    <section class="section" id="order">
+      <div class="container">
+        <div class="section-head">
+          <div><span class="eyebrow" data-reveal>Order online</span><h2 class="h2" data-reveal>Build your order</h2></div>
+          <button class="btn btn--ghost btn--sm cart-open" id="cart-open-2">View cart</button>
+        </div>
+        <div class="cats" id="cats" data-reveal></div>
+        <div class="product-grid" id="product-grid"></div>
+      </div>
+    </section>
+
+    <!-- REWARDS -->
+    <section class="section rewards" id="rewards">
+      <div class="container rewards__grid">
+        <div data-reveal>
+          <span class="eyebrow">Brewworks rewards</span>
+          <h2 class="h2 h2--light">Every cup counts</h2>
+          <p class="lede lede--light">Earn a bean with every item. Collect 9 and your next coffee is on us. Your progress saves automatically on this device.</p>
+          <div class="beans" id="beans"></div>
+          <p class="rewards__note" id="rewards-note"></p>
+        </div>
+        <div class="rewards__card" data-reveal>
+          <div class="loyalty">
+            <div class="loyalty__top"><span>Brewworks Member</span>${""}<strong id="loyalty-pts">0</strong></div>
+            <p class="loyalty__name">Your rewards card</p>
+            <div class="loyalty__bar"><span id="loyalty-fill"></span></div>
+            <p class="loyalty__hint" id="loyalty-hint">Add items to start earning beans →</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <!-- CART DRAWER -->
+  <button class="cart-fab cart-open" id="cart-fab" aria-label="Open cart">
+    <span id="fab-icon"></span><span class="cart-fab__count" id="fab-count">0</span>
+  </button>
+  <div class="drawer" id="drawer" hidden>
+    <div class="drawer__scrim" data-drawer-close></div>
+    <aside class="drawer__panel" role="dialog" aria-modal="true" aria-label="Your order">
+      <header class="drawer__head"><h3>Your order</h3><button class="drawer__close" data-drawer-close aria-label="Close">&times;</button></header>
+      <div class="drawer__body" id="cart-items"></div>
+      <div class="drawer__empty" id="cart-empty">
+        <p>Your cart is empty.</p><button class="btn btn--ghost btn--sm" data-drawer-close>Browse the menu</button>
+      </div>
+      <footer class="drawer__foot" id="cart-foot" hidden>
+        <div class="drawer__line"><span>Subtotal</span><strong id="cart-subtotal">$0.00</strong></div>
+        <div class="drawer__line drawer__line--muted"><span>Pickup</span><span>Free · ~10 min</span></div>
+        <button class="btn btn--accent btn--block" id="checkout-btn">Checkout</button>
+      </footer>
+    </aside>
+  </div>
+
+  <!-- CHECKOUT / CONFIRMATION MODAL -->
+  <div class="modal" id="checkout-modal" hidden>
+    <div class="modal__scrim" data-co-close></div>
+    <div class="modal__panel" role="dialog" aria-modal="true">
+      <button class="modal__close" data-co-close aria-label="Close">&times;</button>
+      <div id="checkout-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

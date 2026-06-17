@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<!-- AutoHub — car-dealership template: searchable/filterable vehicle inventory with finance-enquiry and test-drive lead capture. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AutoHub — Find your next car</title>
+  <meta name="description" content="AutoHub is a modern dealership inventory site: search and filter live stock, book a test drive, and apply for finance online.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230D1B2A'/%3E%3Cpath d='M6 19h20l-2-5H8z' fill='none' stroke='%2314B8C4' stroke-width='2'/%3E%3Ccircle cx='11' cy='21' r='2' fill='%2314B8C4'/%3E%3Ccircle cx='21' cy='21' r='2' fill='%2314B8C4'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#inventory">Skip to inventory</a>
+  <div id="site-header"></div>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero__bg" id="hero-bg"></div>
+      <div class="hero__scrim"></div>
+      <div class="container hero__inner">
+        <span class="eyebrow" data-reveal>120+ cars in stock · Updated daily</span>
+        <h1 data-reveal class="display">Find the car<br>that fits your life.</h1>
+        <p data-reveal class="lede">Browse live inventory, compare specs, and reserve a test drive — all online. No pressure, no hidden fees.</p>
+        <!-- Quick search jumps straight to the filtered inventory below -->
+        <form class="hero__search" id="hero-search" data-reveal novalidate>
+          <div class="field">
+            <label for="q-make">Make</label>
+            <select id="q-make" name="make"></select>
+          </div>
+          <div class="field">
+            <label for="q-body">Body</label>
+            <select id="q-body" name="body"></select>
+          </div>
+          <div class="field">
+            <label for="q-budget">Max budget</label>
+            <select id="q-budget" name="budget">
+              <option value="">Any</option>
+              <option value="20000">Under $20k</option>
+              <option value="35000">Under $35k</option>
+              <option value="50000">Under $50k</option>
+              <option value="80000">Under $80k</option>
+            </select>
+          </div>
+          <button class="btn btn--accent" type="submit">Search stock</button>
+        </form>
+        <div class="hero__stats" data-reveal>
+          <div><strong id="stat-count">120</strong><span>cars available</span></div>
+          <div><strong>4.9★</strong><span>1,200+ reviews</span></div>
+          <div><strong>7-day</strong><span>money-back promise</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- USP STRIP -->
+    <section class="section section--tight">
+      <div class="container">
+        <div class="usp" id="usp"></div>
+      </div>
+    </section>
+
+    <!-- INVENTORY -->
+    <section class="section" id="inventory">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow" data-reveal>Live inventory</span>
+            <h2 data-reveal class="h2">Browse the lot</h2>
+          </div>
+          <button class="filter-toggle" id="filter-toggle" aria-expanded="false">Filters</button>
+        </div>
+
+        <div class="inventory">
+          <!-- FILTER RAIL -->
+          <aside class="filters" id="filters" aria-label="Inventory filters">
+            <div class="filters__head">
+              <strong>Refine</strong>
+              <button type="button" class="link-btn" id="clear-filters">Clear all</button>
+            </div>
+            <div class="filter-group">
+              <label for="f-search">Keyword</label>
+              <input type="search" id="f-search" placeholder="e.g. hybrid, SUV, Tesla">
+            </div>
+            <div class="filter-group" id="fg-make"><span class="filter-label">Make</span></div>
+            <div class="filter-group" id="fg-body"><span class="filter-label">Body type</span></div>
+            <div class="filter-group" id="fg-fuel"><span class="filter-label">Fuel</span></div>
+            <div class="filter-group">
+              <label for="f-price">Max price: <strong id="f-price-out">$80,000</strong></label>
+              <input type="range" id="f-price" min="10000" max="80000" step="1000" value="80000">
+            </div>
+          </aside>
+
+          <!-- RESULTS -->
+          <div class="results">
+            <div class="results__bar">
+              <p id="result-count" aria-live="polite">Showing all cars</p>
+              <div class="field field--inline">
+                <label for="f-sort">Sort</label>
+                <select id="f-sort">
+                  <option value="featured">Featured</option>
+                  <option value="price-asc">Price: low to high</option>
+                  <option value="price-desc">Price: high to low</option>
+                  <option value="year-desc">Newest year</option>
+                  <option value="miles-asc">Lowest mileage</option>
+                </select>
+              </div>
+            </div>
+            <div class="car-grid" id="car-grid"></div>
+            <p class="empty" id="empty" hidden>No cars match those filters. <button class="link-btn" id="reset-empty">Reset filters</button></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINANCE / LEAD -->
+    <section class="section finance" id="finance">
+      <div class="container finance__grid">
+        <div data-reveal>
+          <span class="eyebrow">Finance &amp; enquiries</span>
+          <h2 class="h2">Get pre-approved in minutes</h2>
+          <p class="lede lede--dark">Tell us a little about you and we'll match you with a payment plan. Soft check only — it won't affect your credit score.</p>
+          <ul class="ticks" id="finance-ticks"></ul>
+        </div>
+        <form class="card-form" id="finance-form" data-reveal novalidate>
+          <h3>Finance enquiry</h3>
+          <div class="row">
+            <div class="field"><label for="fin-name">Full name</label><input id="fin-name" name="name" required></div>
+            <div class="field"><label for="fin-email">Email</label><input id="fin-email" name="email" type="email" required></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="fin-phone">Phone</label><input id="fin-phone" name="phone" type="tel" required></div>
+            <div class="field"><label for="fin-deposit">Deposit</label>
+              <select id="fin-deposit" name="deposit">
+                <option value="">Select</option><option>No deposit</option><option>$1k–$5k</option><option>$5k–$10k</option><option>$10k+</option>
+              </select>
+            </div>
+          </div>
+          <div class="field"><label for="fin-car">Car of interest</label><input id="fin-car" name="car" placeholder="Any — help me choose"></div>
+          <button class="btn btn--accent btn--block" type="submit">Check my eligibility</button>
+          <p class="form-msg" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <!-- VEHICLE QUICK-VIEW MODAL -->
+  <div class="modal" id="vehicle-modal" hidden>
+    <div class="modal__scrim" data-close></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="vm-title">
+      <button class="modal__close" data-close aria-label="Close">&times;</button>
+      <div class="modal__body" id="vm-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
